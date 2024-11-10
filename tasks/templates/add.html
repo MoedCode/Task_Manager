@@ -1,0 +1,13 @@
+{% extends "Hi.html" %}
+
+{% block title %}Add Task{% endblock title %}
+
+{% block content %}
+<!-- Leave this block empty to avoid inheriting content from Hi.html -->
+
+
+<form method="post" action="{% url 'post_task' %}">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Submit Task</button>
+</form>
