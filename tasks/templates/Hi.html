@@ -15,8 +15,23 @@
     {{ csrf_token }}
     <h1>{{ now }}</h1>
     {% block content %}
-    <a href="{% url 'tasks:index'  %}">click me</a>
+    {% for task in  tasks %}
+    <h3 class="task_title">{{task.task}}</h3>
+    <ul class="task_list">
+    {% for key,val  in task.items %}
+        <p class="task_entries"><strong>{{key}}</strong> : {{val}} </p>
+    {% endfor %}
+    </ul>
+    <a href="{% url  'tasks:delete' task.id%}">Delete </a>
+
+    {% endfor %}
+    <a href="{% url 'tasks:index'   %}">click me</a>
 
     {% endblock content %}
 </body>
+<style>
+    a{
+        text-decoration: none;
+    }
+</style>
 </html>
