@@ -34,6 +34,7 @@ class CsvStorage():
             return []
     def reload(self):
         self.session =  self.csv_read()
+        print(f"\n\n\n ------------   -------------- \n\n\n")
         return len(self.session)
     def add(self, data):
         if not data or type(data) != dict:
@@ -72,4 +73,23 @@ class CsvStorage():
 
         except Exception as e:
             print(f"An error occurred: {e}")
+
+    def get_by(self, key=None, value=None):
+        if not key or not value:
+            return False, f"messing {'key' if key is None else ''} {'value' if value is None else ''}"
+        if key not in self.clm_names:
+            return False, f"key {key} not match"
+        self.reload()
+        for idx, task in enumerate(self.session):
+            print(f"key : {key} value : {value}")
+
+            if task[key] == value:
+                return True, task, idx
+        return False, f"{key} : {value} not found "
+    def delete(self, key=None, value=None):
+        res = self.get_by(key=key, value=value)
+        if not res[0]:
+            return  res[0], res[1]
+        self.session.pop(res[2])
+        self.save()
 

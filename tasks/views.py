@@ -33,4 +33,6 @@ def add(request):
     return HttpResponse(f"{res[1]}")
 
 def delete_task(request, task_id):
-    return HttpResponse("<h1>lef we arg3 tany</h1>")
+    res =  csv_stor.delete("id", task_id)
+    print(f"from kosom  delete route {task_id}")
+    return redirect("tasks:Hi")

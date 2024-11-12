@@ -5,11 +5,91 @@
 {% block content %}
 <!-- Leave this block empty to avoid inheriting content from Hi.html -->
 
+<style>
+    body {
+        font-family: 'Arial', sans-serif;
+        background-color: #f4f7f6;
+        padding: 20px;
+    }
 
-<form method="post" action="{% url 'tasks:post_task' %}">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Submit Task</button>
-</form>
+    .form-container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 30px;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+        text-align: center;
+        color: #333;
+        font-size: 24px;
+        margin-bottom: 20px;
+    }
+
+    form {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .form-container label {
+        font-size: 16px;
+        color: #555;
+        margin-bottom: 5px;
+    }
+
+    .form-container input,
+    .form-container select,
+    .form-container textarea {
+        padding: 12px;
+        font-size: 16px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        box-sizing: border-box;
+        width: 100%;
+    }
+
+    .form-container button {
+        padding: 12px 20px;
+        background-color: #007bff;
+        color: #fff;
+        font-size: 16px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        margin-top: 20px;
+    }
+
+    .form-container button:hover {
+        background-color: #0056b3;
+    }
+
+    .form-container .error {
+        color: #ff4d4d;
+        font-size: 14px;
+    }
+
+    .form-container p {
+        font-size: 14px;
+        color: #666;
+        text-align: center;
+    }
+</style>
+
+<div class="form-container">
+    <h1>Add a New Task</h1>
+    <form method="post" action="{% url 'tasks:post_task' %}">
+        {% csrf_token %}
+
+        {{ form.as_p }}
+
+        <button type="submit">Submit Task</button>
+    </form>
+
+    <p>Need help? <a href="#">Click here</a></p>
+</div>
 
 {% endblock content %}
