@@ -5,6 +5,7 @@ from .forms import TaskForm
 from api.views import now_date, datetime
 from .__init__ import *
 from uuid import uuid4
+from .models import *
 def hi(request):
     tasks = csv_stor. csv_read()
     return render(request, "Hi.html", {
@@ -21,9 +22,11 @@ def add(request):
             "username":x.get('username'),
             "priority":int(x.get("priority")[0]),
             "kickoff":x.get("kickoff"),
-            "id":str(uuid4())
+
         }
-        res = csv_stor.add(data)
+        task_obj = Tasks(**data)
+        task_dict  = task_obj.to_save()
+        res = csv_stor.add(task_dict)
         if res[0]:
             csv_stor.save()
             return redirect("tasks:Hi")

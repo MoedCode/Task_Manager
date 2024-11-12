@@ -22,9 +22,12 @@ class Base:
 
         if 'user_id' in new_dict:
             new_dict['user_id'] = str(new_dict['user_id'])
+        return new_dict
     def to_save(self):
         salt = bcrypt.gensalt()
         temp = self.to_dict()
+        if "time_format" in temp:
+            temp.pop("time_format")
         if "password" in temp:
             temp["password"] =  bcrypt.hashpw(temp["password"], salt)
         return temp
@@ -38,16 +41,17 @@ class Base:
             serialized.pop("updated")
         return serialized
 class Tasks(Base):
-    def __init__(self, task, priority, kickoff, user):
-        super().__init__()  # Initialize the Base class attributes
-        self.task = task  # Task description
-        self.priority = int(priority)  # Priority level as an integer
-        self.kickoff = datetime.strptime(kickoff, self.time_format)  # Kickoff datetime
-        self.user = user  # User associated with the task
+    def __init__(self, task, priority, kickoff, username):
+        super().__init__()
+        self.task = task
+        self.priority = priority
+        self.username = username
+        # Use fromisoformat to handle the datetime string
+        self.kickoff = datetime.fromisoformat(kickoff)
 
     def __repr__(self):
         return (f"Tasks(task='{self.task}', priority={self.priority}, kickoff='{self.kickoff}', "
-                f"id='{self.id}', user='{self.user}', created='{self.created}', updated='{self.updated}')")
+                f"id='{self.id}', username='{self.username}', created='{self.created}', updated='{self.updated}')")
 
 class Users(Base):
     pass
