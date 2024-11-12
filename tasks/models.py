@@ -1,9 +1,53 @@
-from django.db import models
+import uuid
+from datetime import datetime
 
+import bcrypt
 # Create your models here.
 class Base:
-    pass
+    def __init__(self):
+        self.id = uuid.uuid4()
+        self.created = datetime.now()
+        self.updated = datetime.now()
+        self.time_format = "%Y-%m-%dT%H:%M:%S.%f"
+    def to_dict(self):
+        new_dict = self.__dict__.copy()
+        new_dict['id'] = str(new_dict['id'])
+        if "created" in new_dict:
+            new_dict['created'] = new_dict['created'].strftime(self.time_format)
+        if "updated" in new_dict:
+            new_dict['updated'] = new_dict['updated'].strftime(self.time_format)
+        new_dict.pop('_state', None)
+        if 'date_joined' in new_dict:
+            new_dict['date_joined'] = new_dict['date_joined'].strftime(self.time_format)
+
+        if 'user_id' in new_dict:
+            new_dict['user_id'] = str(new_dict['user_id'])
+    def to_save(self):
+        salt = bcrypt.gensalt()
+        temp = self.to_dict()
+        if "password" in temp:
+            temp["password"] =  bcrypt.hashpw(temp["password"], salt)
+        return temp
+    def serializer(self):
+        serialized = self.to_dict()
+        if 'password' in serialized:
+            serialized.pop("password")
+        if 'created' in serialized:
+            serialized.pop("created")
+        if 'updated' in serialized:
+            serialized.pop("updated")
+        return serialized
 class Tasks(Base):
-    pass
+    def __init__(self, task, priority, kickoff, user):
+        super().__init__()  # Initialize the Base class attributes
+        self.task = task  # Task description
+        self.priority = int(priority)  # Priority level as an integer
+        self.kickoff = datetime.strptime(kickoff, self.time_format)  # Kickoff datetime
+        self.user = user  # User associated with the task
+
+    def __repr__(self):
+        return (f"Tasks(task='{self.task}', priority={self.priority}, kickoff='{self.kickoff}', "
+                f"id='{self.id}', user='{self.user}', created='{self.created}', updated='{self.updated}')")
+
 class Users(Base):
     pass

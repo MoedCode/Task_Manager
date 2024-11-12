@@ -7,7 +7,7 @@ TASKS = []
 
 from .csv_storage import CsvStorage
 csv_stor = CsvStorage(mode='w')
-csv_stor.clm_names = ["task", "priority", "kickoff", "id", "user"]
+csv_stor.clm_names = ["task", "priority", "kickoff", "id", "username"]
 csv_stor.reload()
 
 S200 = S.HTTP_200_OK
