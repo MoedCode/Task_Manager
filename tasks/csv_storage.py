@@ -93,3 +93,25 @@ class CsvStorage():
         self.session.pop(res[2])
         self.save()
 
+    def multi_selection(self, select_by=None, val_lst=[], action="get"):
+        if not select_by or not len(val_lst) or select_by not in self.clm_names:
+            msg = f"{' -empty list.' if not  len(val_lst) else '' }"
+            msg += f"{'-No key to select by' if not  select_by else ''}"
+            msg += f"-{select_by} Not A valid Key" if select_by not in self.clm_names else ""
+            return False, msg
+        self.reload()
+        selected_tasks = []
+        indexes = []
+        for val in val_lst:
+            for index, task in enumerate(self.session):
+                if task[select_by] == val:
+                    indexes.append(index)
+                    selected_tasks.append(task)
+        if not len(selected_tasks):
+            return False, f"No Result Match {val_lst}"
+        if action == "get":
+            return True, selected_tasks, indexes
+        if action == "delete":
+            for index in indexes:
+                self.session.pop(index)
+                self.save()

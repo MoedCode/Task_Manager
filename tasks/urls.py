@@ -8,6 +8,7 @@ urlpatterns = [
     path('add', views.add, name="index"),
     path('api/add', api_views.add, name="addAPI"),
     path('post', views.add, name="post_task"),
-    path('delete/<str:task_id>', views.delete_task, name="delete")
+    path('delete/<str:task_id>', views.delete_task, name="delete"),
+    path('api/selection/', api_views.selection_list, name="selection")
 
 ]
