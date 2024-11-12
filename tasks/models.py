@@ -30,7 +30,7 @@ class Base:
         if "time_format" in temp:
             temp.pop("time_format")
         if "password" in temp:
-            temp["password"] =  bcrypt.hashpw(temp["password"], salt)
+            temp["password"] = bcrypt.hashpw(temp["password"].encode('utf-8'), salt)
         return temp
     def serializer(self):
         serialized = self.to_dict()
@@ -57,8 +57,9 @@ class Tasks(Base):
                 f"id='{self.id}', username='{self.username}', created='{self.created}', updated='{self.updated}')")
 
 
-
 class Users(Base):
+    KEYS = ["username","email","password","image", "id", "created", "updated"]
+
     # Using a private __init__ to prevent direct instantiation
     def __init__(self, username, email, password, image=None):
         super().__init__()

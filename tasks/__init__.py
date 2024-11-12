@@ -8,10 +8,11 @@ TASKS = []
 from .csv_storage import CsvStorage
 from .models import *
 
-csv_stor = CsvStorage(file_name="Tasks.csv",mode='w')
-csv_stor.clm_names = Tasks.KEYS
-csv_stor.reload()
+tasks_stor = CsvStorage(file_name="Tasks.csv",mode='w', clm_names=Tasks.KEYS)
+tasks_stor.reload()
 
+users_stor = CsvStorage(file_name="Users.csv", mode='w', clm_names=Users.KEYS)
+users_stor.reload()
 S200 = S.HTTP_200_OK
 S201 = S.HTTP_201_CREATED
 S304 = S.HTTP_304_NOT_MODIFIED

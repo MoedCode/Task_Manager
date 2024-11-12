@@ -7,7 +7,7 @@ from .__init__ import *
 from uuid import uuid4
 from .models import *
 def hi(request):
-    tasks = csv_stor. csv_read()
+    tasks = tasks_stor. csv_read()
     return render(request, "Hi.html", {
         "now":now_date(), "tasks":tasks
         })
@@ -26,9 +26,9 @@ def add(request):
         }
         task_obj = Tasks(**data)
         task_dict  = task_obj.to_save()
-        res = csv_stor.add(task_dict)
+        res = tasks_stor.add(task_dict)
         if res[0]:
-            csv_stor.save()
+            tasks_stor.save()
             return redirect("tasks:Hi")
 
         # print(f"\n\n\n {x}\n")
@@ -37,7 +37,7 @@ def add(request):
     return HttpResponse(f"{res[1]}")
 
 def delete_task(request, task_id):
-    res =  csv_stor.delete("id", task_id)
+    res =  tasks_stor.delete("id", task_id)
     print(f"from kosom  delete route {task_id}")
     return redirect("tasks:Hi")
 def register(request):

@@ -40,10 +40,13 @@ class CsvStorage():
         if not data or type(data) != dict:
             return False, f"{type(data)} .."
         data_k = sorted(list(data.keys()))
+        # not_match = [key for key in data.keys() if key not in Users.KEYS]
+        not_match = [key for key in data.keys() if key not in self.clm_names]
         if Counter(data_k) != Counter(self.clm_names):
-            return False, f"Key  does not match \n {data_k}  self.cllm {self.clm_names}"
+            return False, f" {not_match} not match  self.cllm {self.clm_names} "
         self.session.append(data)
-        return True, "task added successfully"
+        print(f"\n\n from storage add :: \n{self.session}\n")
+        return True, "data added successfully"
     def save(self):
 
         self.csv_write(self.session)
@@ -69,7 +72,7 @@ class CsvStorage():
                 # Write the data rows
                 csv_writer.writerows(data)
 
-            print(f"\n\nData written successfully to {abs_path}\nDATA\n:{data}\n\n")
+            print(f"\n\nData written successfully to {abs_path}")
 
         except Exception as e:
             print(f"An error occurred: {e}")
