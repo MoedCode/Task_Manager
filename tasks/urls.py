@@ -4,6 +4,7 @@ from . import api_views
 app_name = "tasks"
 urlpatterns = [
     path('', views.hi, name="Hi"),
+    path('register/', views.register, name="register"),
     path('api', api_views.hi, name="HiAPI"),
     path('add', views.add, name="index"),
     path('api/add', api_views.add, name="addAPI"),

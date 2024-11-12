@@ -1,7 +1,7 @@
 from django.shortcuts import (
     render, HttpResponse, redirect
 )
-from .forms import TaskForm
+from .forms import *
 from api.views import now_date, datetime
 from .__init__ import *
 from uuid import uuid4
@@ -40,3 +40,5 @@ def delete_task(request, task_id):
     res =  csv_stor.delete("id", task_id)
     print(f"from kosom  delete route {task_id}")
     return redirect("tasks:Hi")
+def register(request):
+    return render(request, "user_form.html", {"form":UsersForm()})

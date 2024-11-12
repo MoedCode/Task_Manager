@@ -6,8 +6,10 @@ from rest_framework import status as S
 TASKS = []
 
 from .csv_storage import CsvStorage
-csv_stor = CsvStorage(mode='w')
-csv_stor.clm_names = ["task", "priority", "kickoff", "id", "username", "created", "updated"]
+from .models import *
+
+csv_stor = CsvStorage(file_name="Tasks.csv",mode='w')
+csv_stor.clm_names = Tasks.KEYS
 csv_stor.reload()
 
 S200 = S.HTTP_200_OK

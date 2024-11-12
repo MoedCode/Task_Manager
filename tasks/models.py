@@ -1,3 +1,4 @@
+import re
 import uuid
 from datetime import datetime
 
@@ -41,6 +42,7 @@ class Base:
             serialized.pop("updated")
         return serialized
 class Tasks(Base):
+    KEYS = ["task", "priority", "kickoff", "id", "username", "created", "updated"]
     def __init__(self, task, priority, kickoff, username):
         super().__init__()
         self.task = task
@@ -49,9 +51,109 @@ class Tasks(Base):
         # Use fromisoformat to handle the datetime string
         self.kickoff = datetime.fromisoformat(kickoff)
 
+
     def __repr__(self):
         return (f"Tasks(task='{self.task}', priority={self.priority}, kickoff='{self.kickoff}', "
                 f"id='{self.id}', username='{self.username}', created='{self.created}', updated='{self.updated}')")
 
+
+
 class Users(Base):
-    pass
+    # Using a private __init__ to prevent direct instantiation
+    def __init__(self, username, email, password, image=None):
+        super().__init__()
+        self.username = username
+        self.email = email
+        self.password = password
+        self.image = image
+
+    @classmethod
+    def create(cls, username, email, password, image=None):
+        """
+        Factory method to validate all fields and return a Users instance if valid.
+        Raises a ValueError if validation fails.
+        """
+        instance = cls.__new__(cls)  # Create an uninitialized instance
+        is_valid, result = instance.validate_all(username, email, password, image)
+        if is_valid:
+            # Initialize the instance with validated data
+            instance.__init__(username=result['username'],
+                              email=result['email'],
+                              password=result['password'],
+                              image=result.get('image'))
+            return True , instance
+        else:
+            # Raise an error with all validation issues
+            return False,  "Validation errors: " + "; ".join(result)
+
+    def valid_username(self, value):
+        """Validates the username"""
+        if len(value) < 5:
+            return False, "Username must be at least 5 characters long."
+        if not value.isalnum():
+            return False, "Username must contain only letters and numbers."
+        return True, value
+
+    def valid_email(self, value):
+        """Validates the email format"""
+        email_regex = r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)"
+        if not re.match(email_regex, value):
+            return False, "Invalid email format."
+        return True, value
+
+    def valid_password(self, value):
+        """Validates the password strength"""
+        if len(value) < 8:
+            return False, "Password must be at least 8 characters long."
+        if not any(char.isdigit() for char in value):
+            return False, "Password must contain at least one number."
+        if not any(char.isalpha() for char in value):
+            return False, "Password must contain at least one letter."
+        return True, value
+
+    def valid_image(self, value):
+        """Validates the image (optional)"""
+        if value and not value.lower().endswith(('jpg', 'jpeg', 'png')):
+            return False, "Image must be in JPG, JPEG, or PNG format."
+        return True, value
+
+    def validate_all(self, username, email, password, image=None):
+        """Validate all attributes and return validation status"""
+        error_messages = []
+        clean_data = {}
+
+        # Validate each attribute, collecting results and errors
+        username_valid, username = self.valid_username(username)
+        if username_valid:
+            clean_data['username'] = username
+        else:
+            error_messages.append(username)
+
+        email_valid, email = self.valid_email(email)
+        if email_valid:
+            clean_data['email'] = email
+        else:
+            error_messages.append(email)
+
+        password_valid, password = self.valid_password(password)
+        if password_valid:
+            clean_data['password'] = password
+        else:
+            error_messages.append(password)
+
+        image_valid, image = self.valid_image(image)
+        if image_valid or image is None:
+            clean_data['image'] = image
+        else:
+            error_messages.append(image)
+
+        # Return validation status and data or errors
+        if error_messages:
+            return False, error_messages
+        return True, clean_data
+if __name__ == "__main__":
+    user = Users.create("johziko", "john@example.com", "securePassword123", "profile.jpg")
+    if not user[0]:
+        print("error:", user)
+    else:
+        print("User created:", user[1].to_dict())
