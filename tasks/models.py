@@ -1,7 +1,8 @@
 import re
 import uuid
-from datetime import datetime
-
+from datetime import datetime,  timedelta
+import hashlib
+import time
 import bcrypt
 # Create your models here.
 class Base:
@@ -10,6 +11,7 @@ class Base:
         self.created = datetime.now()
         self.updated = datetime.now()
         self.time_format = "%Y-%m-%dT%H:%M:%S.%f"
+        self.class_name = self.__class__.__name__
     def to_dict(self):
         new_dict = self.__dict__.copy()
         new_dict['id'] = str(new_dict['id'])
@@ -42,7 +44,7 @@ class Base:
             serialized.pop("updated")
         return serialized
 class Tasks(Base):
-    KEYS = ["task", "priority", "kickoff", "id", "username", "created", "updated"]
+    KEYS = ["class_name","task", "priority", "kickoff", "id", "username", "created", "updated"]
     def __init__(self, task, priority, kickoff, username):
         super().__init__()
         self.task = task
@@ -58,7 +60,7 @@ class Tasks(Base):
 
 
 class Users(Base):
-    KEYS = ["username","email","password","image", "id", "created", "updated"]
+    KEYS = ["class_name","username","email","password","image", "id", "created", "updated"]
 
     # Using a private __init__ to prevent direct instantiation
     def __init__(self, username, email, password, image=None):
@@ -67,6 +69,7 @@ class Users(Base):
         self.email = email
         self.password = password
         self.image = image
+
 
     @classmethod
     def create(cls, username, email, password, image=None):
@@ -152,9 +155,84 @@ class Users(Base):
         if error_messages:
             return False, error_messages
         return True, clean_data
+
+    def __str__(self) -> str:
+        return self.username
+
+
+class Tokens(Base):
+    KEYS = ["class_name","id" ,"user_id", "created", "token", "token_time"]
+    def __init__(self, user_id=None, token_time=21600 ):
+        super().__init__()
+        if hasattr(self, 'updated'):
+            del self.updated
+        # if hasattr(self, 'id'):
+        #     del self.id
+        """
+        Initializes the TokenManager with an optional token expiration time.
+        :param token_expiry: Token expiration time in seconds (default: 1 hour)
+        """
+        raw_token = f"{user_id}-{time.time()}"
+        self.token = hashlib.sha256(raw_token.encode()).hexdigest()
+        self.token_time = token_time  # Expiry time for tokens in seconds
+        self.user_id = user_id
+    @classmethod
+    def create(cls, user_id=None, token_time=21600, ):
+        instance = cls.__new__(cls)
+        result = instance.validate_all(user_id, token_time )
+        if not result[0]:
+            return False, result[1]
+
+        instance.__init__(**result[1])
+
+        return True, instance
+
+    def validate_id(self, user_id):
+        if isinstance(user_id, str):
+            try:
+                uuid.UUID(user_id).version == 4
+                return True, user_id , "str"
+            except Exception as e:
+                    return False, str(e) + " not match valid UUID format V4 "
+        try:
+            user_id.version == 4
+            return True, str(user_id), "obj"
+        except Exception as e:
+            return False, str(e) + " not match valid UUID format V4 "
+    def validate_exp(self, token_time):
+        try:
+            exp_time_int = int(token_time)
+            if 21600 <= exp_time_int <= 172800:  # Check if within range
+                return True, exp_time_int
+            else:
+                # Return False with message if out of range
+                return False, "Expiration time must be between 21600 and 172800 seconds."
+        except ValueError:
+            msg = "Expiration time should be an integer within the range 21600-172800."
+            return False, msg
+    def validate_all(self, user_id=None, token_time=None ):
+        id_result = self.validate_id(user_id)
+        exp_result = self.validate_exp(token_time)
+        errors_messages = ""
+        clean_data = {}
+        if  id_result[0]:
+            clean_data["user_id"] = id_result[1]
+        else:
+            errors_messages += f" -{id_result[1]}\n"
+        if exp_result[0]:
+            clean_data["token_time"] = exp_result[1]
+        else:
+            errors_messages= f"-{exp_result[1]}\n"
+        if errors_messages:
+            return False, errors_messages
+        return True, clean_data
+
 if __name__ == "__main__":
     user = Users.create("johziko", "john@example.com", "securePassword123", "profile.jpg")
     if not user[0]:
         print("error:", user)
     else:
-        print("User created:", user[1].to_dict())
+        print(f"User created:,\n{ user[1].to_dict()}\n\n")
+    token = Tokens.create(user_id=user[1].id)
+    print(f"token instance:\n {token}\n\n {token[1].to_save()}")
+    # print(f"time test : {token.validate_exp('1500')}")

@@ -13,6 +13,12 @@ tasks_stor.reload()
 
 users_stor = CsvStorage(file_name="Users.csv", mode='w', clm_names=Users.KEYS)
 users_stor.reload()
+
+tokens_stor = CsvStorage(file_name="Auth.csv", mode='w', clm_names=Tokens.KEYS)
+tokens_stor.reload()
+Storages = {"tasks":tasks_stor, "users":users_stor, "auth":tokens_stor}
+Storages_keys = list(Storages.keys())
+Classes  = {"tasks":Tasks, "users":Users, "auth":tokens_stor}
 S200 = S.HTTP_200_OK
 S201 = S.HTTP_201_CREATED
 S304 = S.HTTP_304_NOT_MODIFIED

@@ -1,2 +1,3 @@
-created,email,id,image,password,updated,username
-2024-11-12T23:16:12.897206,john@example.com,eafb5649-810e-474b-a266-89992421d720,profile.jpg,b'$2b$12$xRFv/CBTauc/z.1DoFDbp.sin9VHYvgvS5dgq7hM4Z6q44PDm06Oy',2024-11-12T23:16:12.897213,johziko
+class_name,created,email,id,image,password,updated,username
+Users,2024-11-14T09:58:05.998607,alsmurai@outlook.com,d24e5bb4-17ee-4271-87dd-6c864b65f329,profile.jpg,b'$2b$12$TQ5qW/tpEn4qSO06U6LFUOft7b7.xjEW4/wksBZ21CFSfxMFUOnNe',2024-11-14T09:58:05.998616,alsamurai
+Users,2024-11-14T09:59:12.255051,alsmurai2@outlook.com,51494df3-9382-4b15-811c-7c927c4541fc,profile.jpg,b'$2b$12$oa1Q5izTtxDy6PTFL2kdWOl/ObC3bmkWNloVSmloWn2Rz5fulv1my',2024-11-14T09:59:12.255060,alsamurai2

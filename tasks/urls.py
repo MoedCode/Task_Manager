@@ -5,12 +5,14 @@ app_name = "tasks"
 urlpatterns = [
     path('', views.hi, name="Hi"),
     path('register/', views.register, name="register"),
+    path('api/login/', api_views.login, name="api_login"),
     path('api/register/', api_views.register, name="api_register"),
     path('api', api_views.hi, name="HiAPI"),
     path('add', views.add, name="index"),
     path('api/add', api_views.add, name="addAPI"),
     path('post', views.add, name="post_task"),
     path('delete/<str:task_id>', views.delete_task, name="delete"),
-    path('api/selection/', api_views.selection_list, name="selection")
+    path('api/selection/', api_views.selection_list, name="selection"),
+    path('api/test/<str:key>', api_views.test, name="api_test")
 
 ]

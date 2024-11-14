@@ -3,6 +3,7 @@
 import csv
 import os
 from collections import Counter
+
 class CsvStorage():
     def __init__(self, file_name='output.csv', mode='a',line='', clm_names=[]) -> None:
         self.tasks_dir = os.path.dirname(__file__)  # Gets the directory of the current file (tasks)
@@ -23,7 +24,7 @@ class CsvStorage():
                     # Append each row as-is (as a dictionary) to the data_list
                     data_list.append(dict(row))
 
-            print("Data successfully read.")
+            # print("Data successfully read.")
             return data_list  # Return the list of dictionaries
 
         except FileNotFoundError:
@@ -34,7 +35,7 @@ class CsvStorage():
             return []
     def reload(self):
         self.session =  self.csv_read()
-        print(f"\n\n\n ------------   -------------- \n\n\n")
+        # print(f"\n\n\n ------------   -------------- \n\n\n")
         return len(self.session)
     def add(self, data):
         if not data or type(data) != dict:
@@ -45,11 +46,10 @@ class CsvStorage():
         if Counter(data_k) != Counter(self.clm_names):
             return False, f" {not_match} not match  self.cllm {self.clm_names} "
         self.session.append(data)
-        print(f"\n\n from storage add :: \n{self.session}\n")
+        # print(f"\n\n from storage add :: \n{self.session}\n")
         return True, "data added successfully"
     def save(self):
-
-        self.csv_write(self.session)
+        result = self.csv_write(self.session)
     def csv_write(self, data):
 
         # Build the path to save output.csv within the tasks directory
@@ -84,11 +84,21 @@ class CsvStorage():
             return False, f"key {key} not match"
         self.reload()
         for idx, task in enumerate(self.session):
-            print(f"key : {key} value : {value}")
+            # print(f"key : {key} value : {value}")
 
             if task[key] == value:
                 return True, task, idx
         return False, f"{key} : {value} not found "
+    def is_exist(self, key=None, value=None):
+        result = self.get_by(key, value)
+        if not result[0] and "messing" in result[1]:
+            return result
+        if result[0]:
+            return "Exist" ,result[1],value
+        if not result[0] and "not match" in result[1]:
+            return "Not Exist", f"{key}:{value} not found"
+        return False, f" unknown error {self}:: is_exist()"
+
     def delete(self, key=None, value=None):
         res = self.get_by(key=key, value=value)
         if not res[0]:
