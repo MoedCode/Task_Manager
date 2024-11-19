@@ -3,5 +3,5 @@ class LogRequestMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-        print("Request Headers:", request.headers)  # Logs headers to the terminal
+        # print("Request Headers:", request.headers)  # Logs headers to the terminal
         return self.get_response(request)

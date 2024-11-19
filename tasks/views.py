@@ -12,34 +12,34 @@ auth = Authentication()
 import json
 from django.http import JsonResponse
 
-def dump_request_to_json(request, filename="request_dump.json"):
-    try:
-        # Extract relevant parts of the request
-        request_data = {
-            "method": request.method,
-            "headers": dict(request.headers),  # Convert headers to a dictionary
-            "GET_params": dict(request.GET),  # Query parameters
-            "POST_data": request.POST.dict(),  # Form data
-            "body": request.body.decode("utf-8"),  # Raw body, decoded
-            "content_type": request.content_type,
-            "path": request.path,
-            "cookies": request.COOKIES,
-            "session": dict(request.session.items()) if request.session else None,
+# def dump_request_to_json(request, filename="request_dump.json"):
+#     try:
+#         # Extract relevant parts of the request
+#         request_data = {
+#             "method": request.method,
+#             "headers": dict(request.headers),  # Convert headers to a dictionary
+#             "GET_params": dict(request.GET),  # Query parameters
+#             "POST_data": request.POST.dict(),  # Form data
+#             "body": request.body.decode("utf-8"),  # Raw body, decoded
+#             "content_type": request.content_type,
+#             "path": request.path,
+#             "cookies": request.COOKIES,
+#             "session": dict(request.session.items()) if request.session else None,
 
-        }
+#         }
 
-        # Write to a JSON file
-        with open(filename, "w") as file:
-            json.dump(request_data, file, indent=4)
+#         # Write to a JSON file
+#         with open(filename, "w") as file:
+#             json.dump(request_data, file, indent=4)
 
-        print(f"Request data has been dumped to {filename}")
-        return JsonResponse({"status": "success", "message": f"Request data dumped to {filename}"})
-    except Exception as e:
-        print(f"Error dumping request data: {e}")
-        return JsonResponse({"status": "error", "message": str(e)})
+#         print(f"Request data has been dumped to {filename}")
+#         return JsonResponse({"status": "success", "message": f"Request data dumped to {filename}"})
+#     except Exception as e:
+#         print(f"Error dumping request data: {e}")
+#         return JsonResponse({"status": "error", "message": str(e)})
 
 def hi(request):
-    dump_request_to_json(request)
+    # dump_request_to_json(request)
     msg = ""
     print(f"\n\n from view:hi  token 1 {request.headers.get('Authorization')} \n")
 
