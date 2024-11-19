@@ -40,7 +40,9 @@ INSTALLED_APPS = [
     'rest_framework',
     'api',
     'web',
-    'tasks'
+    'tasks',
+       # Other apps
+    "corsheaders",
 ]
 
 MIDDLEWARE = [
@@ -51,6 +53,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+     "tasks.middleware.LogRequestMiddleware",  # Added custom middleware here
 ]
 
 ROOT_URLCONF = 'promarket.urls'
@@ -125,3 +128,12 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+CORS_ALLOW_HEADERS = [
+    "authorization",
+    "content-type",
+    "x-requested-with",
+    "accept",
+    "origin",
+    "user-agent",
+    "cookie",
+]

@@ -42,6 +42,7 @@ class CsvStorage():
             return False, f"{type(data)} .."
         data_k = sorted(list(data.keys()))
         # not_match = [key for key in data.keys() if key not in Users.KEYS]
+
         not_match = [key for key in data.keys() if key not in self.clm_names]
         if Counter(data_k) != Counter(self.clm_names):
             return False, f" {not_match} not match  self.cllm {self.clm_names} "
@@ -78,6 +79,7 @@ class CsvStorage():
             print(f"An error occurred: {e}")
 
     def get_by(self, key=None, value=None):
+        print(f"\n\n from csv_storage:get_by >> key {key} value {value}")
         if not key or not value:
             return False, f"messing {'key' if key is None else ''} {'value' if value is None else ''}"
         if key not in self.clm_names:

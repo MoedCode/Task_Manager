@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+{% block content %}
+
+    <title>Login and Test API</title>
+    <style>
+
+
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 400px;
+            text-align: center;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        label {
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            width: 100%;
+            margin-bottom: 15px;
+        }
+
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+
+        button:hover:not(:disabled) {
+            background-color: #0056b3;
+        }
+
+        p {
+            margin: 10px 0;
+            color: #555;
+        }
+
+        hr {
+            margin: 20px 0;
+            border: none;
+            border-top: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Login and Test API</h1>
+
+        <!-- Login Form -->
+        <form id="loginForm">
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" placeholder="Enter your username" required>
+
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" placeholder="Enter your password" required>
+
+            <button type="submit">Login</button>
+        </form>
+
+        <p id="loginStatus"></p>
+
+        <hr>
+
+        <!-- Test Token -->
+        <button id="testTokenBtn" disabled>Test Token</button>
+        <p id="testResult"></p>
+    </div>
+
+    <script>
+        const loginForm = document.getElementById("loginForm");
+        const loginStatus = document.getElementById("loginStatus");
+        const testTokenBtn = document.getElementById("testTokenBtn");
+        const testResult = document.getElementById("testResult");
+
+        let token = null;
+
+        // Handle Login Form Submission
+        loginForm.addEventListener("submit", async (event) => {
+            event.preventDefault();
+
+            const username = document.getElementById("username").value;
+            const password = document.getElementById("password").value;
+
+            try {
+                const response = await fetch("http://127.0.0.1:8000/tasks/api/login/", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    token = response.headers.get("Authorization").split(" ")[1];
+                    loginStatus.textContent = "Login successful!";
+                    loginStatus.style.color = "green";
+                    testTokenBtn.disabled = false;
+                } else {
+                    loginStatus.textContent = `Login failed: ${data.message}`;
+                    loginStatus.style.color = "red";
+                }
+            } catch (error) {
+                loginStatus.textContent = `Error: ${error.message}`;
+                loginStatus.style.color = "red";
+            }
+        });
+
+        // Handle Test Token Request
+        testTokenBtn.addEventListener("click", async () => {
+            if (!token) {
+                testResult.textContent = "No token available. Please log in first.";
+                testResult.style.color = "red";
+                return;
+            }
+
+            try {
+                const response = await fetch("http://127.0.0.1:8000/tasks/api/test/", {
+                    method: "GET",
+                    headers: {
+                        "Authorization": `Bearer ${token}`
+                    }
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    testResult.textContent = `Token test successful: ${JSON.stringify(data)}`;
+                    testResult.style.color = "green";
+                } else {
+                    testResult.textContent = `Token test failed: ${data.message}`;
+                    testResult.style.color = "red";
+                }
+            } catch (error) {
+                testResult.textContent = `Error: ${error.message}`;
+                testResult.style.color = "red";
+            }
+        });
+    </script>
+
+    {% endblock content %}

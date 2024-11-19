@@ -27,12 +27,12 @@ class Base:
             new_dict['user_id'] = str(new_dict['user_id'])
         return new_dict
     def to_save(self):
-        salt = bcrypt.gensalt()
         temp = self.to_dict()
         if "time_format" in temp:
             temp.pop("time_format")
         if "password" in temp:
-            temp["password"] = bcrypt.hashpw(temp["password"].encode('utf-8'), salt)
+            # Hash the password using SHA-256 to match `check_PWD_256`
+            temp["password"] = hashlib.sha256(temp["password"].encode('utf-8')).hexdigest()
         return temp
     def serializer(self):
         serialized = self.to_dict()

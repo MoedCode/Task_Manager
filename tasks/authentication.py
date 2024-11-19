@@ -28,7 +28,40 @@ class Authentication:
         return max(time_left.total_seconds(), 0)
     def authenticate(self, user={}):
         pass
-    def is_login(self, user={}):
+    def is_login(self,  request={}):
+
+        req_token = request.headers.get('Authorization') or None
+        if not request or not req_token:
+            return False , f"No valid token {req_token}"
+        token_query = tokens_stor.is_exist("token",req_token)
+        if not token_query[0] or token_query[0] == "Not Exist":
+            return False, "Not logged in "
+        if token_query[0] == "Exist":
+            token =token_query[1]
+            rem_time = self.token_remaining_time(created=token["created"],token_time=token["token_time"])
+            if int(rem_time) > 60:
+                return True , f"gooood {rem_time}"
+            else:
+                res_x = tokens_stor.delete("token", token["token"])
+                return False, "5lalas ra7et 3alek"
+    def authenticate(self, username=None, password=None):
+
+        query = users_stor.get_by("username", username)
+        validPWD = self.check_PWD_256(plain_password=password, hashed_password=query[1]["password"])
+        if not query[0] or  not validPWD:
+            if not validPWD:
+                return False,  f"Query {query[1]} hashpass {self.hash_256(password)}"
+            return  (False, f"incorrect username or password ")
+        return True, query[1]
+
+    def hash_256(self, password):
+        return hashlib.sha256(password.encode()).hexdigest()
+
+    def check_PWD_256(self, plain_password, hashed_password):
+        return self.hash_256(plain_password) == hashed_password
+
+    def is_login_1(self, user={}):
+
         if not user or not  user["id"]:
             return False, f"No valid user data "
         token_query = tokens_stor.is_exist("user_id",user["id"])
@@ -46,7 +79,7 @@ class Authentication:
 
 
 
-    def login(self, user={}):
+    def login_user(self, user={}):
         # if not isinstance(user, Users):
         if user["class_name"] != "Users":
             return False, f"user must be {Users} instance"
@@ -66,9 +99,9 @@ class Authentication:
         adding = tokens_stor.add(token_dict)
         saving = tokens_stor.save()
 
-        if not saving or not adding:
-            return saving if not saving else adding
-        return True , result[1].hash_token
+        # if not saving or not adding:
+            # return saving if not saving else adding
+        return True , result[1].token
 
 if __name__  == "__main__":
     auth = Authentication()

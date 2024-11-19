@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+{% block title %}User Registration{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <h1>User Registration Form</h1>
+    <form id="registrationForm">
+        <label for="username">Username</label>
+        <input type="text" id="username" name="username" placeholder="Enter your username" required>
+
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" placeholder="Enter your email" required>
+
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" placeholder="Enter your password" required>
+
+        <label for="confirm_password">Confirm Password</label>
+        <input type="password" id="confirm_password" name="confirm_password" placeholder="Re-enter your password" required>
+
+        <div class="error" id="errorMessages"></div>
+
+        <button type="submit">Register</button>
+    </form>
+    <p id="statusMessage"></p>
+</div>
+
+<script>
+    document.getElementById("registrationForm").addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        const username = document.getElementById("username").value;
+        const email = document.getElementById("email").value;
+        const password = document.getElementById("password").value;
+        const confirm_password = document.getElementById("confirm_password").value;
+        const errorDiv = document.getElementById("errorMessages");
+        const statusMessage = document.getElementById("statusMessage");
+
+        errorDiv.textContent = "";
+        statusMessage.textContent = "";
+
+        if (password !== confirm_password) {
+            errorDiv.textContent = "Passwords do not match.";
+            return;
+        }
+
+        try {
+            const response = await fetch("http://127.0.0.1:8000/tasks/api/register/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ username, email, password })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                const token = response.headers.get("Authorization")?.split("Bearer ")[1];
+                if (token) {
+                    statusMessage.textContent = "Registration successful! Redirecting...";
+                    statusMessage.style.color = "green";
+
+                    // Send a request to the hi endpoint with the token in the headers
+                    const hiResponse = await fetch("http://127.0.0.1:8000/tasks/hi/", {
+                        method: "GET",
+                        headers: {
+                            "Authorization": `Bearer ${token}`,
+                            "Cookie1" :`${token}`
+                        },
+                        token_x:`${token}`,
+                        data:token
+                    });
+
+                    if (hiResponse.ok) {
+                        window.location.href = "/tasks/hi/";
+                    } else {
+                        errorDiv.textContent = "Error accessing the Hi endpoint.";
+                    }
+                } else {
+                    errorDiv.textContent = "Error: Token not found.";
+                }
+            } else {
+                errorDiv.innerHTML = `<ul>${Object.values(data).map(err => `<li>${err}</li>`).join('')}</ul>`;
+            }
+        } catch (error) {
+            errorDiv.textContent = `Error: ${error.message}`;
+        }
+    });
+</script>
+
+<style>
+    .form-container {
+        max-width: 500px;
+        margin: 40px auto;
+        padding: 20px;
+        background-color: #f9f9f9;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+        text-align: center;
+        color: #333;
+        font-size: 24px;
+        margin-bottom: 20px;
+    }
+
+    form {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    label {
+        font-weight: bold;
+        color: #555;
+    }
+
+    input {
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 14px;
+    }
+
+    button {
+        padding: 12px 20px;
+        background-color: #007bff;
+        color: white;
+        font-size: 16px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+        background-color: #0056b3;
+    }
+
+    .error {
+        color: #ff4d4d;
+        font-size: 14px;
+    }
+
+    p {
+        text-align: center;
+        margin-top: 15px;
+        font-size: 14px;
+        color: #333;
+    }
+</style>
+{% endblock %}

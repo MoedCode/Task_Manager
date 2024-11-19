@@ -1,0 +1,202 @@
+<html><head>
+
+
+
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="robots" content="NONE,NOARCHIVE">
+
+
+  <title>Hi – Django REST framework</title>
+
+
+
+      <link rel="stylesheet" type="text/css" href="/static/rest_framework/css/bootstrap.min.css">
+<style>
+
+
+</style>
+      <link rel="stylesheet" type="text/css" href="/static/rest_framework/css/bootstrap-tweaks.css">
+
+
+    <link rel="stylesheet" type="text/css" href="/static/rest_framework/css/prettify.css">
+    <link rel="stylesheet" type="text/css" href="/static/rest_framework/css/default.css">
+
+
+
+
+</head>
+
+
+<body class="">
+
+<div class="wrapper">
+
+    <div class="navbar navbar-static-top navbar-inverse" role="navigation" aria-label="navbar">
+      <div class="container">
+        <span>
+
+            <a class="navbar-brand" rel="nofollow" href="https://www.django-rest-framework.org/">
+                Django REST framework
+            </a>
+
+        </span>
+        <ul class="nav navbar-nav pull-right">
+
+
+
+
+
+        </ul>
+      </div>
+    </div>
+
+
+  <div class="container">
+
+      <ul class="breadcrumb">
+
+
+            <li class="active"><a href="/tasks/api">Hi</a></li>
+
+
+      </ul>
+
+
+    <!-- Content -->
+    <div id="content" role="main" aria-label="content">
+
+
+      <div class="region" aria-label="request form">
+
+
+
+        <form id="get-form" class="pull-right">
+          <fieldset>
+
+              <div class="btn-group format-selection">
+                <a class="btn btn-primary js-tooltip" href="/tasks/api" rel="nofollow" title="" data-original-title="Make a GET request on the Hi resource">GET</a>
+
+                <button class="btn btn-primary dropdown-toggle js-tooltip" data-toggle="dropdown" title="" data-original-title="Specify a format for the GET request">
+                  <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu">
+
+                    <li>
+                      <a class="js-tooltip format-option" href="/tasks/api?format=json" rel="nofollow" title="" data-original-title="Make a GET request on the Hi resource with the format set to `json`">json</a>
+                    </li>
+
+                    <li>
+                      <a class="js-tooltip format-option" href="/tasks/api?format=api" rel="nofollow" title="" data-original-title="Make a GET request on the Hi resource with the format set to `api`">api</a>
+                    </li>
+
+                </ul>
+              </div>
+
+          </fieldset>
+        </form>
+
+
+
+        <form class="button-form" action="/tasks/api" data-method="OPTIONS">
+          <button class="btn btn-primary js-tooltip" title="" data-original-title="Make an OPTIONS request on the Hi resource">OPTIONS</button>
+        </form>
+
+
+
+
+
+
+
+
+
+      </div>
+
+        <div class="content-main" role="main" aria-label="main content">
+          <div class="page-header">
+            <h1>Hi</h1>
+          </div>
+          <div class="pull-left">
+
+              <p></p>
+
+          </div>
+
+
+
+          <div class="request-info" aria-label="request info">
+            <pre class="prettyprint"><b><span class="pln">GET</span></b><span class="pln"> </span><span class="pun">/</span><span class="pln">tasks</span><span class="pun">/</span><span class="pln">api</span></pre>
+          </div>
+
+          <div class="response-info" aria-label="response info">
+            <pre class="prettyprint"><span class="meta nocode"><b>HTTP 200 OK</b>
+<b>Allow:</b> <span class="lit">GET, OPTIONS</span>
+<b>Content-Type:</b> <span class="lit">application/json</span>
+<b>Vary:</b> <span class="lit">Accept</span>
+
+</span><span class="pun">[</span><span class="pln">
+</span><span class="pun">{</span><span class="pln">
+    </span><span class="str">"class_name"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"Tasks"</span><span class="pun">,</span><span class="pln">
+    </span><span class="str">"created"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"2024-11-17T13:12:52.215338"</span><span class="pun">,</span><span class="pln">
+    </span><span class="str">"id"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"440676e3-96ff-4306-8a20-3b6bbbacf695"</span><span class="pun">,</span><span class="pln">
+    </span><span class="str">"kickoff"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"2024-11-30 14:42:00"</span><span class="pun">,</span><span class="pln">
+    </span><span class="str">"priority"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"2"</span><span class="pun">,</span><span class="pln">
+    </span><span class="str">"task"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"___TASK__"</span><span class="pun">,</span><span class="pln">
+    </span><span class="str">"updated"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"2024-11-17T13:12:52.215346"</span><span class="pun">,</span><span class="pln">
+    </span><span class="str">"username"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"usereyx"</span><span class="pln">
+</span><span class="pun">},</span><span class="pln">
+</span><span class="pun">{</span><span class="pln">
+    </span><span class="str">"class_name"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"Tasks"</span><span class="pun">,</span><span class="pln">
+    </span><span class="str">"created"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"2024-11-17T13:13:47.137113"</span><span class="pun">,</span><span class="pln">
+    </span><span class="str">"id"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"7ce4bf54-a9d0-4f5b-b05a-a6bd9d4036bc"</span><span class="pun">,</span><span class="pln">
+    </span><span class="str">"kickoff"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"2024-11-30 14:42:00"</span><span class="pun">,</span><span class="pln">
+    </span><span class="str">"priority"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"1"</span><span class="pun">,</span><span class="pln">
+    </span><span class="str">"task"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"___TASK__ 0"</span><span class="pun">,</span><span class="pln">
+    </span><span class="str">"updated"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"2024-11-17T13:13:47.137121"</span><span class="pun">,</span><span class="pln">
+    </span><span class="str">"username"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"usereyx"</span><span class="pln">
+</span><span class="pun">},</span><span class="pln">
+</span><span class="pun">{</span><span class="pln">
+    </span><span class="str">"class_name"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"Tasks"</span><span class="pun">,</span><span class="pln">
+    </span><span class="str">"created"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"2024-11-19T11:44:28.418374"</span><span class="pun">,</span><span class="pln">
+    </span><span class="str">"id"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"c15b53d5-42ea-44d6-803e-c71ed4dd7705"</span><span class="pun">,</span><span class="pln">
+    </span><span class="str">"kickoff"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"2024-11-19 00:00:00"</span><span class="pun">,</span><span class="pln">
+    </span><span class="str">"priority"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"2"</span><span class="pun">,</span><span class="pln">
+    </span><span class="str">"task"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"___TASK__"</span><span class="pun">,</span><span class="pln">
+    </span><span class="str">"updated"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"2024-11-19T11:44:28.418384"</span><span class="pun">,</span><span class="pln">
+    </span><span class="str">"username"</span><span class="pun">:</span><span class="pln"> </span><span class="str">"ProCoderx0"</span><span class="pln">
+</span><span class="pun">}</span><span class="pln">
+</span><span class="pun">]</span></pre>
+          </div>
+        </div>
+
+
+
+
+
+
+
+    </div><!-- /.content -->
+  </div><!-- /.container -->
+</div><!-- ./wrapper -->
+
+
+
+
+  <script type="application/json" id="drf_csrf">
+    {
+      "csrfHeaderName": "X-CSRFTOKEN",
+      "csrfToken": "YRpXNsHoY8PmRW2czf8uKFIXyRMRPGsPfzkdDAtlBXYVZsUyP5uUO4ELVLMrTJG2"
+    }
+  </script>
+  <script src="/static/rest_framework/js/jquery-3.7.1.min.js"></script>
+  <script src="/static/rest_framework/js/ajax-form.js"></script>
+  <script src="/static/rest_framework/js/csrf.js"></script>
+  <script src="/static/rest_framework/js/bootstrap.min.js"></script>
+  <script src="/static/rest_framework/js/prettify-min.js"></script>
+  <script src="/static/rest_framework/js/default.js"></script>
+  <script src="/static/rest_framework/js/load-ajax-form.js"></script>
+
+
+
+
+
+</body></html>
