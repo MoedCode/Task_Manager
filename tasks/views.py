@@ -64,7 +64,7 @@ def add(request):
         x  = request.POST
         data =  {
             "task":x.get('task'),
-            "username":x.get('username'),
+            "user_id":x.get('user_id'),
             "priority":int(x.get("priority")[0]),
             "kickoff":x.get("kickoff"),
 

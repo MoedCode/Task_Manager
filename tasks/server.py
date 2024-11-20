@@ -43,6 +43,13 @@ class RequestHandler(BaseHTTPRequestHandler):
         self._set_headers(status)
         self.wfile.write(json.dumps(data).encode())
 
+    def get_user_id(self):
+        auth_header = self.headers.get("Authorization", "")
+        parsed_token = auth_header.split(" ")[1]
+        query = tokens_stor.get_by("token", parsed_token)
+        if not query[0]:
+            return False,  f"Not Found {query[2]}"
+        return True, query[1]["user_id"]
     def do_GET(self):
         parsed_path = urlparse(self.path)
         path = parsed_path.path
@@ -54,8 +61,16 @@ class RequestHandler(BaseHTTPRequestHandler):
             auth_header = self.headers.get("Authorization", "")
             self.send_response_data({"message": f"Authorization Header: {auth_header}"})
         elif path == "/api/hi/":
-            data = tasks_stor.csv_read()
-            self.send_response_data(data)
+            res, user_id = self.get_user_id()
+            if not  res:
+                self.send_response_data({"error": f"Not Found {user_id}"}, status=404)
+            all_tasks = tasks_stor.csv_read()
+            user_tasks = []
+            for task in all_tasks:
+                if task["user_id"] == user_id:
+                    user_tasks.append(task)
+
+            self.send_response_data(user_tasks)
         else:
             self.send_response_data({"error": "Not Found"}, status=404)
 
@@ -88,11 +103,12 @@ class RequestHandler(BaseHTTPRequestHandler):
             self.send_response_data({"status": "success", "token": login_res[1]})
 
         elif path == "/api/logout/":
-            if data:
+            print(f"{path}: self.headers{self.headers}")
+            if data and data.get("id"):
                 user_d = data.get("id")
                 x =  auth.logout(user_id=user_d)
                 print(f"{path} : user_d {user_d} x{x}")
-                self.send_response_data({"status": "success", "message": f"{x} Logged out"})
+                self.send_response_data({"status": "success", "message": f"{self.headers} Logged out"})
                 return
             auth_header = self.headers.get("Authorization", "")
             print(f" Error -- {path} : auth_header before : {auth_header} {type(auth_header)}")
@@ -134,10 +150,13 @@ class RequestHandler(BaseHTTPRequestHandler):
             self.send_response_data(quay[1])
 
         elif path == "/api/add/":
+            res, user_id = self.get_user_id()
+            if not  res:
+                self.send_response_data({"error": f"Not Found {user_id}"}, status=404)
             try:
                 task_data = {
                     "task": data.get("task"),
-                    "username": data.get("username"),
+                    "user_id": user_id,
                     "priority": int(data.get("priority", 0)),
                     "kickoff": data.get("kickoff"),
                 }

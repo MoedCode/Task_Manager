@@ -101,6 +101,12 @@
                 <pre id="response-body">{}</pre>
             </div>
 
+            <!-- Request Headers -->
+            <div class="request-body">
+                <h4>Request Headers (optional):</h4>
+                <textarea id="request-headers" class="form-control" rows="3" placeholder='{"Authorization": "Bearer token"}'></textarea>
+            </div>
+
             <!-- Request Body for POST -->
             <div class="request-body">
                 <h4>Request Body (for POST requests):</h4>
@@ -120,11 +126,30 @@
     <script>
         let currentEndpoint = 'GET /api/';
 
+        // Default headers
+        const defaultHeaders = {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer default_token"
+        };
+
+        // Merge headers
+        function mergeHeaders(providedHeaders) {
+            let headers = { ...defaultHeaders };
+            try {
+                const userHeaders = JSON.parse(providedHeaders);
+                headers = { ...headers, ...userHeaders };
+            } catch (e) {
+                console.warn("Invalid JSON for headers. Using default headers.");
+            }
+            return headers;
+        }
+
         // Update URL and Fetch Data
         function updateURLAndFetch(method) {
             const urlElement = document.getElementById("endpoint-url");
             const responseBody = document.getElementById("response-body");
             const requestBody = document.getElementById("request-body").value;
+            const requestHeaders = document.getElementById("request-headers").value;
 
             const [methodType, endpoint] = currentEndpoint.split(' ');
 
@@ -135,6 +160,7 @@
                 url: endpoint,
                 method: method,
                 contentType: "application/json",
+                headers: mergeHeaders(requestHeaders),
                 dataType: "json",
                 success: (data) => {
                     responseBody.textContent = JSON.stringify(data, null, 4);

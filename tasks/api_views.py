@@ -18,7 +18,7 @@ def add(request):
         return Response({"status":"Error", "message":"No Data provided"}, S400)
     task_data =  {
         "task":data.get('task'),
-        "username":data.get('username'),
+        "user_id":data.get('user_id'),
         "priority":int(data.get("priority")[0]),
         "kickoff":data.get("kickoff"),
 

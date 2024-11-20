@@ -44,19 +44,19 @@ class Base:
             serialized.pop("updated")
         return serialized
 class Tasks(Base):
-    KEYS = ["class_name","task", "priority", "kickoff", "id", "username", "created", "updated"]
-    def __init__(self, task, priority, kickoff, username):
+    KEYS = ["class_name","task", "priority", "kickoff", "id", "user_id", "created", "updated"]
+    def __init__(self, task, priority, kickoff, user_id):
         super().__init__()
         self.task = task
         self.priority = priority
-        self.username = username
+        self.user_id = user_id
         # Use fromisoformat to handle the datetime string
         self.kickoff = datetime.fromisoformat(kickoff)
 
 
     def __repr__(self):
         return (f"Tasks(task='{self.task}', priority={self.priority}, kickoff='{self.kickoff}', "
-                f"id='{self.id}', username='{self.username}', created='{self.created}', updated='{self.updated}')")
+                f"id='{self.id}', user_id='{self.user_id}', created='{self.created}', updated='{self.updated}')")
 
 
 class Users(Base):
