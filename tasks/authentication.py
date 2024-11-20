@@ -77,7 +77,27 @@ class Authentication:
                 return False, "5lalas ra7et 3alek"
 
 
-
+    def delete_token(self, user_token=None):
+        if not user_token:
+            False, f"Auth Error {self.logout.__name__}: NULL user token"
+        # okay, query = tokens_stor.get_by("token", user_token)
+        # if not okay:
+        #     return False, query
+        okay, delres = tokens_stor.delete("token", user_token)
+        if not okay:
+            return False, delres
+        return  True, delres
+    def logout(self, user={}, user_id=""):
+        if not user and not user_id:
+            return False, f"Error -- {self.logout}: NULL user and user id"
+        if not user_id  and( user["class_name"] != "Users" or not user["id"]):
+            return False , f"Error -- {self.logout.__name__}: No valid user data  "
+        if user:
+            user_id = user["id"]
+        okay, query = tokens_stor.delete("user_id", user_id)
+        if not okay:
+            return False, query
+        return True, "user logged out"
 
     def login_user(self, user={}):
         # if not isinstance(user, Users):

@@ -12,6 +12,7 @@ auth = Authentication()
 
 class RequestHandler(BaseHTTPRequestHandler):
     def _set_headers(self, status=200, content_type="application/json"):
+        """Set HTTP headers for the response."""
         self.send_response(status)
         self.send_header("Content-Type", content_type)
         self.end_headers()
@@ -29,8 +30,13 @@ class RequestHandler(BaseHTTPRequestHandler):
     def parse_request_data(self):
         """Parse JSON request body."""
         content_length = int(self.headers.get("Content-Length", 0))
-        post_data = self.rfile.read(content_length)
-        return json.loads(post_data)
+        if content_length == 0:
+            return {}
+        try:
+            post_data = self.rfile.read(content_length)
+            return json.loads(post_data)
+        except json.JSONDecodeError:
+            return None
 
     def send_response_data(self, data, status=200):
         """Helper to send a JSON response."""
@@ -58,53 +64,61 @@ class RequestHandler(BaseHTTPRequestHandler):
         path = parsed_path.path
         data = self.parse_request_data()
 
+        if data is None:
+            self.send_response_data({"Error": "Invalid JSON in request body"}, status=400)
+            return
+
         if path == "/api/login/":
-            username = data.get("username", None)
-            password = data.get("password", None)
-            if not data or not username or not password:
-                msg = "Missing: "
-                msg += "request data, " if not data else ""
-                msg += "username, " if not username else ""
-                msg += "password, " if not password else ""
-                self.send_response_data({"Error": msg}, status=400)
+            username = data.get("username")
+            password = data.get("password")
+            if not username or not password:
+                self.send_response_data({"Error": "Missing username or password"}, status=400)
                 return
 
             res = auth.authenticate(username=username, password=password)
             if not res[0]:
-                self.send_response_data({"status": "Error", "message": res[1]}, status=400)
+                self.send_response_data({"Error": res[1]}, status=400)
                 return
 
             login_res = auth.login_user(res[1])
             if not login_res[0]:
-                self.send_response_data({"status": "Error", "message": login_res[1]}, status=400)
+                self.send_response_data({"Error": login_res[1]}, status=400)
                 return
 
             self.send_response_data({"status": "success", "token": login_res[1]})
 
         elif path == "/api/logout/":
+            if data:
+                user_d = data.get("id")
+                x =  auth.logout(user_id=user_d)
+                print(f"{path} : user_d {user_d} x{x}")
+                self.send_response_data({"status": "success", "message": f"{x} Logged out"})
+                return
             auth_header = self.headers.get("Authorization", "")
-            if auth_header:
-                logout_res = auth.logout_user(auth_header)
-                if logout_res:
-                    self.send_response_data({"status": "success", "message": "Logged out"})
-                else:
-                    self.send_response_data({"status": "Error", "message": "Invalid token"}, status=400)
+            print(f" Error -- {path} : auth_header before : {auth_header} {type(auth_header)}")
+            if not auth_header:
+
+
+                self.send_response_data({"Error": "Missing Authorization header"}, status=400)
+                return
+            parsed_token = auth_header.split(" ")[1]
+            logout_res = auth.delete_token(parsed_token)
+            print(f" Error -- {path} : parsed_token : {parsed_token}")
+            if logout_res[0]:
+                self.send_response_data({"status": "success", "message": "Logged out"})
             else:
-                self.send_response_data({"status": "Error", "message": "Missing Authorization header"}, status=400)
+                self.send_response_data({"Error": f"Invalid token {logout_res[1]}"}, status=400)
 
         elif path == "/api/selection/":
-            select_by = data.get("select_by", None)
-            select_in = data.get("select_in", None)
-            val_lst = data.get("val_lst", None)
+            select_by = data.get("select_by")
+            select_in = data.get("select_in")
+            val_lst = data.get("val_lst")
 
-            if not data or not select_by or not val_lst or not select_in:
-                msg = "Missing: "
-                msg += "Request Data, " if not data else ""
-                msg += "selection key, " if not select_by else ""
-                msg += "selection area, " if not select_in else ""
-                msg += "selection values, " if not val_lst else ""
-                msg += "provided."
-                self.send_response_data({"Error": msg}, status=400)
+            if not select_by or not val_lst or not select_in:
+                self.send_response_data(
+                    {"Error": "Missing selection key, selection area, or selection values"},
+                    status=400,
+                )
                 return
 
             if select_in not in Storages_keys:
@@ -120,35 +134,45 @@ class RequestHandler(BaseHTTPRequestHandler):
             self.send_response_data(quay[1])
 
         elif path == "/api/add/":
-            task_data = {
-                "task": data.get("task"),
-                "username": data.get("username"),
-                "priority": int(data.get("priority", [0])[0]),
-                "kickoff": data.get("kickoff"),
-            }
-            task_obj = Tasks(**task_data)
-            task_dict = task_obj.to_save()
-            res = tasks_stor.add(task_dict)
-            if not res[0]:
-                self.send_response_data({"Error": res[1]}, status=400)
-                return
-            tasks_stor.save()
-            self.send_response_data(res[1])
+            try:
+                task_data = {
+                    "task": data.get("task"),
+                    "username": data.get("username"),
+                    "priority": int(data.get("priority", 0)),
+                    "kickoff": data.get("kickoff"),
+                }
+                task_obj = Tasks(**task_data)
+                task_dict = task_obj.to_save()
+                res = tasks_stor.add(task_dict)
+                if not res[0]:
+                    self.send_response_data({"Error": res[1]}, status=400)
+                    return
+                tasks_stor.save()
+                self.send_response_data(res[1])
+            except Exception as e:
+                self.send_response_data({"Error": str(e)}, status=400)
 
         elif path == "/api/register/":
             not_match = [key for key in data.keys() if key not in Users.KEYS]
             if not_match:
-                msg = f"key provided {not_match} not match {Users.KEYS}"
-                self.send_response_data({"Error": msg}, status=400)
+                self.send_response_data(
+                    {"Error": f"Invalid keys provided: {not_match}"}, status=400
+                )
                 return
 
             username_query = users_stor.is_exist("username", data["username"])
             email_query = users_stor.is_exist("email", data["email"])
             if username_query[0] == "Exist":
-                self.send_response_data({"status": "error", "message": f"user with username {data['username']} exists"}, status=400)
+                self.send_response_data(
+                    {"Error": f"User with username {data['username']} already exists"},
+                    status=400,
+                )
                 return
             if email_query[0] == "Exist":
-                self.send_response_data({"status": "error", "message": f"user with email {data['email']} exists"}, status=400)
+                self.send_response_data(
+                    {"Error": f"User with email {data['email']} already exists"},
+                    status=400,
+                )
                 return
 
             result = Users.create(**data)
@@ -161,18 +185,21 @@ class RequestHandler(BaseHTTPRequestHandler):
             users_stor.save()
             log_res = auth.login_user(user_dict)
             if not log_res[0]:
-                self.send_response_data({"Error": f"{log_res[1]}"}, status=400)
+                self.send_response_data({"Error": log_res[1]}, status=400)
                 return
 
             token = log_res[1]
-            self.send_response_data({"success": f"Bearer {token}", "user": user_dict}, status=201)
+            self.send_response_data(
+                {"success": "User registered successfully", "token": token, "user": user_dict},
+                status=201,
+            )
 
         else:
-            self.send_response_data({"error": "Endpoint not found"}, status=404)
+            self.send_response_data({"Error": "Endpoint not found"}, status=404)
 
 
 def run(server_class=HTTPServer, handler_class=RequestHandler, port=5000):
-    server_address = ('', port)
+    server_address = ("", port)
     httpd = server_class(server_address, handler_class)
     print(f"Server running at http://127.0.0.1:{port}/api/")
     httpd.serve_forever()

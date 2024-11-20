@@ -8,13 +8,13 @@ TASKS = []
 from .csv_storage import CsvStorage
 from .models import *
 
-tasks_stor = CsvStorage(file_name="Tasks.csv",mode='w', clm_names=Tasks.KEYS)
+tasks_stor = CsvStorage(file_name="Tasks.csv",mode='w', pair_class=Tasks)
 tasks_stor.reload()
 
-users_stor = CsvStorage(file_name="Users.csv", mode='w', clm_names=Users.KEYS)
+users_stor = CsvStorage(file_name="Users.csv", mode='w', pair_class=Users)
 users_stor.reload()
 
-tokens_stor = CsvStorage(file_name="Auth.csv", mode='w', clm_names=Tokens.KEYS)
+tokens_stor = CsvStorage(file_name="Auth.csv", mode='w', pair_class=Tokens)
 tokens_stor.reload()
 Storages = {"tasks":tasks_stor, "users":users_stor, "auth":tokens_stor}
 Storages_keys = list(Storages.keys())

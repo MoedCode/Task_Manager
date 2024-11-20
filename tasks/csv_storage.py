@@ -3,15 +3,19 @@
 import csv
 import os
 from collections import Counter
-
+class OX:
+    KEYS = ["O", "X", "x", "y", "Y"]
+    pass
 class CsvStorage():
-    def __init__(self, file_name='output.csv', mode='a',line='', clm_names=[]) -> None:
+    def __init__(self, file_name='output.csv', mode='a',line='', clm_names=[], pair_class=OX, inst_name=None) -> None:
         self.tasks_dir = os.path.dirname(__file__)  # Gets the directory of the current file (tasks)
         self.file_path = os.path.join(self.tasks_dir, file_name)  # Build the full path within tasks
         self.line = line
         self.mode = mode
         self.session  = []
-        self.clm_names = sorted(clm_names)
+        self.pair_class = pair_class
+        self.clm_names = sorted(self.pair_class.KEYS)
+        self.inst_name =   inst_name or     pair_class.__name__.lower()
     def csv_read(self):
 
 
@@ -46,8 +50,13 @@ class CsvStorage():
         not_match = [key for key in data.keys() if key not in self.clm_names]
         if Counter(data_k) != Counter(self.clm_names):
             return False, f" {not_match} not match  self.cllm {self.clm_names} "
+        self.session.clear()
+        self.reload()
         self.session.append(data)
+
         # print(f"\n\n from storage add :: \n{self.session}\n")
+        print(f"\n\n\n {self.add.__name__} instname {self.inst_name}")
+        # self.session = []
         return True, "data added successfully"
     def save(self):
         result = self.csv_write(self.session)
@@ -72,16 +81,16 @@ class CsvStorage():
 
                 # Write the data rows
                 csv_writer.writerows(data)
-
+                # self.session.clear()
             print(f"\n\nData written successfully to {abs_path}")
 
         except Exception as e:
             print(f"An error occurred: {e}")
 
     def get_by(self, key=None, value=None):
-        print(f"\n\n from csv_storage:get_by >> key {key} value {value}")
+        # print(f"\n\n from csv_storage:get_by >> key {key} value {value}")
         if not key or not value:
-            return False, f"messing {'key' if key is None else ''} {'value' if value is None else ''}"
+            return False, f"\n{self.get_by.__name__}:\nmessing {'key' if key is None else ''} {'value' if value is None else ''} ."
         if key not in self.clm_names:
             return False, f"key {key} not match"
         self.reload()
@@ -105,8 +114,13 @@ class CsvStorage():
         res = self.get_by(key=key, value=value)
         if not res[0]:
             return  res[0], res[1]
+
         self.session.pop(res[2])
         self.save()
+        return True, f"{self.inst_name} deleted"
+        # self.session = []
+        # self.reload()
+        # return True, f"{self}"
 
     def multi_selection(self, select_by=None, val_lst=[], action="get"):
         if not select_by or not len(val_lst) or select_by not in self.clm_names:
