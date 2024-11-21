@@ -43,27 +43,32 @@ class RequestHandler(BaseHTTPRequestHandler):
         self._set_headers(status)
         self.wfile.write(json.dumps(data).encode())
 
+
     def get_user_id(self):
         auth_header = self.headers.get("Authorization", "")
-        parsed_token = auth_header.split(" ")[1]
-        query = tokens_stor.get_by("token", parsed_token)
+        query = auth.validate_token(auth_header)
         if not query[0]:
-            return False,  f"Not Found {query[2]}"
+            return False,  f" {query[1]}"
         return True, query[1]["user_id"]
     def do_GET(self):
         parsed_path = urlparse(self.path)
         path = parsed_path.path
-
         if path == "/api/":
             filepath = os.path.join("tasks", "templates", "api_interface.html")
             self.serve_html(filepath)
+
+
         elif path == "/api/test/":
             auth_header = self.headers.get("Authorization", "")
             self.send_response_data({"message": f"Authorization Header: {auth_header}"})
+
+
         elif path == "/api/hi/":
             res, user_id = self.get_user_id()
             if not  res:
-                self.send_response_data({"error": f"Not Found {user_id}"}, status=404)
+                print(f"{DEBUG()} -- {user_id}")
+                self.send_response_data({"error": f"Not Found {user_id}"}, status=S401)
+                return
             all_tasks = tasks_stor.csv_read()
             user_tasks = []
             for task in all_tasks:
@@ -105,9 +110,9 @@ class RequestHandler(BaseHTTPRequestHandler):
         elif path == "/api/logout/":
             print(f"{path}: self.headers{self.headers}")
             if data and data.get("id"):
-                user_d = data.get("id")
-                x =  auth.logout(user_id=user_d)
-                print(f"{path} : user_d {user_d} x{x}")
+                user_id = data.get("id")
+                x =  auth.logout(user_id=user_id)
+                print(f"{path} : user_id {user_id} x{x}")
                 self.send_response_data({"status": "success", "message": f"{self.headers} Logged out"})
                 return
             auth_header = self.headers.get("Authorization", "")
@@ -152,7 +157,7 @@ class RequestHandler(BaseHTTPRequestHandler):
         elif path == "/api/add/":
             res, user_id = self.get_user_id()
             if not  res:
-                self.send_response_data({"error": f"Not Found {user_id}"}, status=404)
+                self.send_response_data({"error": f"Not Found {user_id}"}, status=401)
             try:
                 task_data = {
                     "task": data.get("task"),
@@ -170,6 +175,25 @@ class RequestHandler(BaseHTTPRequestHandler):
                 self.send_response_data(res[1])
             except Exception as e:
                 self.send_response_data({"Error": str(e)}, status=400)
+
+        elif path == "/api/delete/":
+            print(f"{DEBUG()}")
+            res, user_id = self.get_user_id()
+            if not  res:
+                self.send_response_data({"error": f"Not Found {user_id}"}, status=401)
+            task_id = data.get("task_id", "")
+            if not task_id:
+                self.send_response_data({"Error":"No task id provided"}, status=200)
+                return
+            task_q = tasks_stor.get_by("id", task_id)
+            if not task_q[0]:
+                self.send_response_data({"status":"Error", "message":f"{task_q[1]}"}, status=200)
+                return
+            if task_q[1]["user_id"] != user_id:
+                self.send_response_data({"status":"Error", "message":f"task id{task_q[1]['user_id']} \n  {user_id}"}, status=200)
+                return
+            del_res = tasks_stor.delete("id", task_id)
+            self.send_response_data({"status":"success", "message":f"task deleted successfully"}, status=200)
 
         elif path == "/api/register/":
             not_match = [key for key in data.keys() if key not in Users.KEYS]

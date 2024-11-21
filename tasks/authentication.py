@@ -26,6 +26,21 @@ class Authentication:
 
         # If time_left is positive, return remaining time in seconds; otherwise, return 0
         return max(time_left.total_seconds(), 0)
+    def validate_token(self, token=""):
+        if not token:
+            return False, f"Error {self.validate_token}: No valid token provided"
+        if token.startswith("Token") or token.startswith("Bearer"):
+            token = token.split(" ")[1]
+        query = tokens_stor.get_by("token", token)
+        if not query[0]:
+            return query
+        token_dict = query[1]
+        remaining = self.token_remaining_time(created=token_dict["created"], token_time=token_dict["token_time"])
+        if remaining < 60:
+            tokens_stor.delete("token", token)
+            return False, "Your session has expired. Please log in again."
+        return True, token_dict
+        pass
     def authenticate(self, user={}):
         pass
     def is_login(self,  request={}):

@@ -1,5 +1,7 @@
 import csv
 import os
+import inspect
+
 from rest_framework import status as S
 
 
@@ -7,6 +9,18 @@ TASKS = []
 
 from .csv_storage import CsvStorage
 from .models import *
+
+def DEBUG():
+    # Get the current frame
+    frame = inspect.currentframe()
+    # Get the caller's frame (where DEUG is called)
+    caller_frame = frame.f_back
+    # Extract file name and line number
+    file_name = os.path.basename(caller_frame.f_code.co_filename)
+    line_number = caller_frame.f_lineno
+    # Return formatted string
+    return f"{file_name}, line {line_number}"
+
 
 tasks_stor = CsvStorage(file_name="Tasks.csv",mode='w', pair_class=Tasks)
 tasks_stor.reload()
@@ -28,3 +42,5 @@ S405 = S.HTTP_405_METHOD_NOT_ALLOWED
 S403 = S.HTTP_403_FORBIDDEN
 S404 = S.HTTP_404_NOT_FOUND
 S422 = S.HTTP_422_UNPROCESSABLE_ENTITY
+
+
