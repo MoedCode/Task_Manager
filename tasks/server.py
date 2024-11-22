@@ -19,11 +19,17 @@ class RequestHandler(BaseHTTPRequestHandler):
 
     def serve_html(self, filepath):
         """Serve an HTML file."""
+        print(f"{DEBUG()} >>   filepath[{filepath}]")
+
         try:
             with open(filepath, "rb") as file:
+                print(f"{DEBUG()} >> \n  filepath[{filepath}] \n file[{file}]")
+
                 self._set_headers(200, "text/html")
                 self.wfile.write(file.read())
-        except FileNotFoundError:
+        except FileNotFoundError as e:
+            # print(f"{DEBUG()} FileNotFoundError[{e}]")
+            raise e
             self._set_headers(404, "text/html")
             self.wfile.write(b"<h1>404 Not Found</h1>")
 
@@ -55,6 +61,7 @@ class RequestHandler(BaseHTTPRequestHandler):
         path = parsed_path.path
         if path == "/api/":
             filepath = os.path.join("tasks", "templates", "api_interface.html")
+            print(f"{DEBUG()} \n {filepath}")
             self.serve_html(filepath)
 
 
