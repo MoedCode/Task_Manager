@@ -29,7 +29,26 @@ class RequestHandler(BaseHTTPRequestHandler):
                 self.wfile.write(file.read())
         except FileNotFoundError as e:
             # print(f"{DEBUG()} FileNotFoundError[{e}]")
-            raise e
+            # raise e
+            self._set_headers(404, "text/html")
+            self.wfile.write(b"<h1>404 Not Found</h1>")
+    def serve_html(self, filepath, context=None):
+        """Serve an HTML file with optional context."""
+        print(f"{DEBUG()} >>   filepath[{filepath}]")
+        try:
+            with open(filepath, "r") as file:
+                html_content = file.read()
+
+                if context:
+                    # Process the context and insert the data into the HTML
+                    for key, value in context.items():
+                        # This is a simple example; you might want to use a template engine
+                        html_content = html_content.replace(f"{{{{ {key} }}}}", str(value))
+
+                self._set_headers(200, "text/html")
+                self.wfile.write(html_content.encode())
+        except FileNotFoundError as e:
+            print(f"{DEBUG()} FileNotFoundError[{e}]")
             self._set_headers(404, "text/html")
             self.wfile.write(b"<h1>404 Not Found</h1>")
 
@@ -50,19 +69,93 @@ class RequestHandler(BaseHTTPRequestHandler):
         self.wfile.write(json.dumps(data).encode())
 
 
-    def get_user_id(self):
+    def get_token_dict(self):
         auth_header = self.headers.get("Authorization", "")
+        auth_header = "ddaf56ad711478bb325bc610892e9cff30093724b4aebb31809b321ab1fe91b2"
         query = auth.validate_token(auth_header)
         if not query[0]:
             return False,  f" {query[1]}"
-        return True, query[1]["user_id"]
+        return True, query[1]
+
+
+    def get_user_tasks(self, user_id=""):
+        if not user_id:
+            query_id = self.get_token_dict()
+            if not query_id[0]:
+                return query_id
+            user_id = query_id[1]["user_id"]
+        all_tasks = tasks_stor.csv_read()
+        user_tasks = []
+        for task in all_tasks:
+            if task["user_id"] == user_id:
+                user_tasks.append(task)
+        return True, user_tasks
+
+
+    def get_tasks_html(self, user_id=""):
+        tasks_query = self.get_user_tasks(user_id)
+        if not tasks_query[0]:
+            return tasks_query
+        user_tasks = tasks_query[1]
+        msg = "<div class='task_card'>"
+        for task in user_tasks:
+            msg  += f"<h3 class='task_title'>{task['task'] }</h3>"
+            msg  += f"<ul class='task_list'>"
+            for key, value in task.items():
+                msg +=f"<li class='task_entries'><strong>{ key }:</strong> { value }</li>"
+            msg += "</ul>"
+        msg +="</div>"
+        return True, msg
+
+
     def do_GET(self):
         parsed_path = urlparse(self.path)
         path = parsed_path.path
+
+
+#        API INTERFACE
         if path == "/api/":
             filepath = os.path.join("tasks", "templates", "api_interface.html")
             print(f"{DEBUG()} \n {filepath}")
             self.serve_html(filepath)
+
+
+# #       HOME PAGE
+#         elif path == "/" or path == "":
+#             res, user_id = self.get_token_dict()
+#             if not  res:
+#                 print(f"{DEBUG()} -- {user_id}")
+#                 filepath = os.path.join("tasks", "templates", "login.html")
+#                 print(f"{DEBUG()} \n {filepath}")
+#                 self.serve_html(filepath)
+#                 return
+#             else:
+
+
+#                 filepath = os.path.join("tasks", "templates", "Hi.html")
+#                 rendered_tasks = self.get_tasks_html()
+#                 if not rendered_tasks[0]:
+#                     msg = f"<h1>sorry Something Went Wrong {rendered_tasks[1]} </h1>"
+#                     self.serve_html(filepath, context={"rendered_tasks":msg})
+
+#                 self.serve_html(filepath, context={"rendered_tasks":rendered_tasks})
+#                 return
+
+#       HOME PAGE
+        elif path == "/" or path == "":
+            res, token_dict = self.get_token_dict()
+            if not  res:
+                filepath = os.path.join("tasks", "templates", "base.html")
+                cont_dict = {"status":"Error", "message":"not authorize"}
+                self.serve_html(filepath, context={"data":cont_dict})
+                return
+            else:
+                filepath = os.path.join("tasks", "templates", "base.html")
+                cont_dict = {"status":"success", "Token":token_dict["token"]}
+                self.serve_html(filepath, context={"data":cont_dict})
+
+                return
+
 
 
         elif path == "/api/test/":
@@ -71,7 +164,7 @@ class RequestHandler(BaseHTTPRequestHandler):
 
 
         elif path == "/api/hi/":
-            res, user_id = self.get_user_id()
+            res, user_id = self.get_token_dict()
             if not  res:
                 print(f"{DEBUG()} -- {user_id}")
                 self.send_response_data({"error": f"Not Found {user_id}"}, status=S401)
@@ -82,9 +175,10 @@ class RequestHandler(BaseHTTPRequestHandler):
                 if task["user_id"] == user_id:
                     user_tasks.append(task)
 
-            self.send_response_data(user_tasks)
+            self.send_response_data(self.get_user_tasks()[1])
         else:
             self.send_response_data({"error": "Not Found"}, status=404)
+
 
     def do_POST(self):
         parsed_path = urlparse(self.path)
@@ -162,13 +256,13 @@ class RequestHandler(BaseHTTPRequestHandler):
             self.send_response_data(quay[1])
 
         elif path == "/api/add/":
-            res, user_id = self.get_user_id()
+            res, token_dict = self.get_token_dict()
             if not  res:
                 self.send_response_data({"error": f"Not Found {user_id}"}, status=401)
             try:
                 task_data = {
                     "task": data.get("task"),
-                    "user_id": user_id,
+                    "user_id": token_dict["user_id"],
                     "priority": int(data.get("priority", 0)),
                     "kickoff": data.get("kickoff"),
                 }
@@ -185,9 +279,9 @@ class RequestHandler(BaseHTTPRequestHandler):
 
         elif path == "/api/delete/":
             print(f"{DEBUG()}")
-            res, user_id = self.get_user_id()
+            res, token_dict = self.get_token_dict()
             if not  res:
-                self.send_response_data({"error": f"Not Found {user_id}"}, status=401)
+                self.send_response_data({"error": f"Not Found {token_dict}"}, status=401)
             task_id = data.get("task_id", "")
             if not task_id:
                 self.send_response_data({"Error":"No task id provided"}, status=200)
@@ -196,7 +290,7 @@ class RequestHandler(BaseHTTPRequestHandler):
             if not task_q[0]:
                 self.send_response_data({"status":"Error", "message":f"{task_q[1]}"}, status=200)
                 return
-            if task_q[1]["user_id"] != user_id:
+            if task_q[1]["user_id"] != token_dict["user_id"]:
                 self.send_response_data({"status":"Error", "message":f"task id{task_q[1]['user_id']} \n  {user_id}"}, status=200)
                 return
             del_res = tasks_stor.delete("id", task_id)

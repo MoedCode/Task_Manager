@@ -104,26 +104,4 @@
 </head>
 <body>
 <h1>HI!</h1>
-<!-- {{ csrf_token }} -->
-<h1>{{ now }}</h1>
-
-        <h1>:: app_token >> {{app_token}}</h1>
-        <h1>:: req_token >> {{req_token}}</h1>
-    <div id="tasks_container">
-
-        {% for task in tasks %}
-            <div class="task_card">
-                <h3 class="task_title">{{ task.task }}</h3>
-                <ul class="task_list">
-                    {% for key, val in task.items %}
-                        <li class="task_entries"><strong>{{ key }}:</strong> {{ val }}</li>
-                    {% endfor %}
-                </ul>
-                <a href="{% url 'tasks:delete' task.id %}" class="delete_link">Delete</a>
-            </div>
-        {% endfor %}
-    </div>
-    <div id="add_task_div">
-        <a href="{% url 'tasks:add' %}">Add Task</a>
-    </div>
-{% endblock content %}
+    {{rendered_tasks}}
