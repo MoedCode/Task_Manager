@@ -19,10 +19,10 @@
     <header>
         <h1>ProTasks</h1>
         <nav>
-            <a href="{% url 'tasks:Hi' %}">View Your Tasks</a> |
-            <a href="{% url 'tasks:register' %}">Register</a> |
-            <a href="{% url 'tasks:login' %}">Login</a> |
-            <a href="{% url 'tasks:add' %}">Add Task</a>
+            <a href="#">View Your Tasks</a> |
+            <a href="#">Register</a> |
+            <a href="#">Login</a> |
+            <a href="#">Add Task</a>
         </nav>
     </header>
     <!-- <div class="container"> -->
@@ -31,7 +31,16 @@
         {% endblock %}
     <!-- </div> -->
 
-    {{data}}
+    <h1>Status: {{ data.status }}</h1>
+    <p>Message: {{ data.message }}</p>
+    {% if not data.status %}
+    {% include "./login.html" %}
+
+    {% endif %}
+    {% if data.Token %}
+    <p>Token: {{ data.Token }}</p>
+    {% endif %}
+
     <footer>
         © 2024 ProMarket
     </footer>

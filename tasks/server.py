@@ -3,7 +3,7 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 import json
 from urllib.parse import urlparse, parse_qs
 import os
-
+from jinja2 import Environment, FileSystemLoader
 # Import your storage, authentication, and models modules
 from tasks.__init__ import *
 from authentication import Authentication
@@ -32,25 +32,30 @@ class RequestHandler(BaseHTTPRequestHandler):
             # raise e
             self._set_headers(404, "text/html")
             self.wfile.write(b"<h1>404 Not Found</h1>")
+
+
+    # Set up Jinja2 environment
+
+
     def serve_html(self, filepath, context=None):
-        """Serve an HTML file with optional context."""
-        print(f"{DEBUG()} >>   filepath[{filepath}]")
+        template_dir = os.path.join("tasks", "templates")  # Update to your templates folder
+        env = Environment(loader=FileSystemLoader(template_dir))
+        """Serve an HTML file with optional context using Jinja2."""
         try:
-            with open(filepath, "r") as file:
-                html_content = file.read()
+            # Extract template name
+            template_name = os.path.relpath(filepath, template_dir)
+            template = env.get_template(template_name)  # Load the template
 
-                if context:
-                    # Process the context and insert the data into the HTML
-                    for key, value in context.items():
-                        # This is a simple example; you might want to use a template engine
-                        html_content = html_content.replace(f"{{{{ {key} }}}}", str(value))
+            # Render the template with context
+            html_content = template.render(context or {})
 
-                self._set_headers(200, "text/html")
-                self.wfile.write(html_content.encode())
-        except FileNotFoundError as e:
-            print(f"{DEBUG()} FileNotFoundError[{e}]")
-            self._set_headers(404, "text/html")
-            self.wfile.write(b"<h1>404 Not Found</h1>")
+            self._set_headers(200, "text/html")
+            self.wfile.write(html_content.encode())
+        except Exception as e:
+            self._set_headers(500, "text/html")
+            error_message = f"<h1>500 Internal Server Error</h1><p>{e}</p>"
+            self.wfile.write(error_message.encode())
+
 
     def parse_request_data(self):
         """Parse JSON request body."""
@@ -70,12 +75,7 @@ class RequestHandler(BaseHTTPRequestHandler):
 
 
     def get_token_dict(self):
-        auth_header = self.headers.get("Authorization", "")
-        auth_header = "ddaf56ad711478bb325bc610892e9cff30093724b4aebb31809b321ab1fe91b2"
-        query = auth.validate_token(auth_header)
-        if not query[0]:
-            return False,  f" {query[1]}"
-        return True, query[1]
+        return auth.is_auth(self.headers)
 
 
     def get_user_tasks(self, user_id=""):
@@ -146,12 +146,12 @@ class RequestHandler(BaseHTTPRequestHandler):
             res, token_dict = self.get_token_dict()
             if not  res:
                 filepath = os.path.join("tasks", "templates", "base.html")
-                cont_dict = {"status":"Error", "message":"not authorize"}
+                cont_dict = {"status":False, "message":"not authorize"}
                 self.serve_html(filepath, context={"data":cont_dict})
                 return
             else:
                 filepath = os.path.join("tasks", "templates", "base.html")
-                cont_dict = {"status":"success", "Token":token_dict["token"]}
+                cont_dict = {"status":True, "Token":token_dict["token"]}
                 self.serve_html(filepath, context={"data":cont_dict})
 
                 return
@@ -198,12 +198,12 @@ class RequestHandler(BaseHTTPRequestHandler):
 
             res = auth.authenticate(username=username, password=password)
             if not res[0]:
-                self.send_response_data({"Error": res[1]}, status=400)
+                self.send_response_data({"Error": res[1]}, status=200)
                 return
 
             login_res = auth.login_user(res[1])
             if not login_res[0]:
-                self.send_response_data({"Error": login_res[1]}, status=400)
+                self.send_response_data({"Error": login_res[1]}, status=200)
                 return
 
             self.send_response_data({"status": "success", "token": login_res[1]})
@@ -258,7 +258,7 @@ class RequestHandler(BaseHTTPRequestHandler):
         elif path == "/api/add/":
             res, token_dict = self.get_token_dict()
             if not  res:
-                self.send_response_data({"error": f"Not Found {user_id}"}, status=401)
+                self.send_response_data({"error": f"Not Found {token_dict}"}, status=401)
             try:
                 task_data = {
                     "task": data.get("task"),
@@ -270,12 +270,48 @@ class RequestHandler(BaseHTTPRequestHandler):
                 task_dict = task_obj.to_save()
                 res = tasks_stor.add(task_dict)
                 if not res[0]:
-                    self.send_response_data({"Error": res[1]}, status=400)
+                    self.send_response_data({"Error": res[1]}, status=200)
                     return
                 tasks_stor.save()
                 self.send_response_data(res[1])
             except Exception as e:
-                self.send_response_data({"Error": str(e)}, status=400)
+                self.send_response_data({"Error": str(e)}, status=200)
+
+            #UPDATE
+        elif path == "/api/update/":
+            res, token_dict = self.get_token_dict()
+            if not  res:
+                self.send_response_data({"error": f"Not Found {token_dict}"}, status=401)
+            category = data.get("category", "")
+            lock_for= data.get("lock_for", "")
+            update_data= data.get("update_data","")
+            if not category or not update_data or not lock_for:
+                msg = f"No:{' -category' if not category else ''}" \
+                    f"{', key value to lock for' if not lock_for else ''}" \
+                    f"{', data to update' if not update_data else ''}   provided"
+
+                self.send_response_data({"status":"Error", "message":msg}, status=200)
+                return
+
+            cat = category + 's' if category[-1] != 's' else category
+            storage = None
+            for name ,stor_type in Storages.items():
+                if cat.lower() == name.lower():
+                    storage = stor_type
+            if not storage:
+                self.send_response_data({"status":"Error", "message":f"category {category} not found"}, status=200)
+                return
+            print(f"{DEBUG()} {lock_for}")
+            key=list(lock_for.keys())[0]
+            value = lock_for[key]
+            print(f"{DEBUG()}  {key}:{value}")
+            result = storage.update(key=key,value=value,  data=update_data)
+            if not result[0]:
+                self.send_response_data({"status":"Error", "message":f"{result[1]}"}, status=200)
+                return
+            self.send_response_data({"success":"Error", "data":result[1]}, status=200)
+            return
+
 
         elif path == "/api/delete/":
             print(f"{DEBUG()}")
@@ -300,7 +336,7 @@ class RequestHandler(BaseHTTPRequestHandler):
             not_match = [key for key in data.keys() if key not in Users.KEYS]
             if not_match:
                 self.send_response_data(
-                    {"Error": f"Invalid keys provided: {not_match}"}, status=400
+                    {"Error": f"Invalid keys provided: {not_match}"}, status=200
                 )
                 return
 
@@ -309,13 +345,13 @@ class RequestHandler(BaseHTTPRequestHandler):
             if username_query[0] == "Exist":
                 self.send_response_data(
                     {"Error": f"User with username {data['username']} already exists"},
-                    status=400,
+                    status=200,
                 )
                 return
             if email_query[0] == "Exist":
                 self.send_response_data(
                     {"Error": f"User with email {data['email']} already exists"},
-                    status=400,
+                    status=200,
                 )
                 return
 

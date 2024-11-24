@@ -3,7 +3,10 @@
 import csv
 import os
 from collections import Counter
-class OX:
+from tasks.main import *
+class XO:
+    immutable = ["x", "o"]
+class OX(XO):
     KEYS = ["O", "X", "x", "y", "Y"]
     pass
 class CsvStorage():
@@ -15,6 +18,7 @@ class CsvStorage():
         self.session  = []
         self.pair_class = pair_class
         self.clm_names = sorted(self.pair_class.KEYS)
+        self.immutables = sorted(self.pair_class.immutable_instattr )
         self.inst_name =   inst_name or     pair_class.__name__.lower()
     def csv_read(self):
 
@@ -109,6 +113,27 @@ class CsvStorage():
         if not result[0] and "not match" in result[1]:
             return "Not Exist", f"{key}:{value} not found"
         return False, f" unknown error {self}:: is_exist()"
+    def update(self, key="", value=None, data={}):
+        data_k = list(data.keys())
+        # return False, data_k
+        not_match = [key for key in data.keys() if key not in self.clm_names]
+        if not_match:
+            return False, f" {not_match} not match  self.cllm {self.clm_names} "
+        Err = [key for key in data.keys() if key  in self.immutables]
+        if Err:
+            msg = ", ".join(Err)
+            return False, f" cant update {msg} from here "
+        query = self.get_by(key, value)
+        if not query[0]:
+            return False, query[1]
+        idx = query[2]
+        from datetime import datetime
+        DEBUG(f"{self.file_path}")
+        for key, value in data.items():
+            self.session[idx][key] = value
+        self.session[idx]["updated"] =  datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f")
+        self.save()
+        return True, f" updated  "
 
     def delete(self, key=None, value=None):
         res = self.get_by(key=key, value=value)

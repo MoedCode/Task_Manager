@@ -10,7 +10,7 @@ TASKS = []
 from .csv_storage import CsvStorage
 from .models import *
 
-def DEBUG():
+def DEBUG(format=""):
     # Get the current frame
     frame = inspect.currentframe()
     # Get the caller's frame (where DEUG is called)
@@ -19,7 +19,7 @@ def DEBUG():
     file_name = os.path.basename(caller_frame.f_code.co_filename)
     line_number = caller_frame.f_lineno
     # Return formatted string
-    return f"{file_name}, line {line_number}"
+    print( f"{file_name}, line {line_number} ::\n {format}")
 
 
 tasks_stor = CsvStorage(file_name="Tasks.csv",mode='w', pair_class=Tasks)

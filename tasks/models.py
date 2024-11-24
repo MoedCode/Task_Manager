@@ -6,6 +6,7 @@ import time
 import bcrypt
 # Create your models here.
 class Base:
+    immutable_instattr = ["created", "id","class_name", "password" ]
     def __init__(self):
         self.id = uuid.uuid4()
         self.created = datetime.now()
@@ -156,6 +157,50 @@ class Users(Base):
             return False, error_messages
         return True, clean_data
 
+    @classmethod
+    def validate_dict(cls, data={}, instance=None):
+        """
+        Dynamically validates user attributes provided in `data`.
+        Can be called as both an instance method and a class method.
+        Returns:
+            - True, clean_data (if all attributes are valid)
+            - False, error_messages (if any attribute fails validation)
+        """
+        error_messages = {}
+        clean_data = {}
+
+        # Use instance methods if called from an instance
+        if instance:
+            validation_methods = {
+                "username": instance.valid_username,
+                "email": instance.valid_email,
+                "password": instance.valid_password,
+                "image": instance.valid_image
+            }
+        else:
+            # Use class methods for validation
+            validation_methods = {
+                "username": cls.valid_username,
+                "email": cls.valid_email,
+                "password": cls.valid_password,
+                "image": cls.valid_image
+            }
+
+        # Iterate through provided data and validate each key-value pair
+        for key, value in data.items():
+            if key in validation_methods:
+                is_valid, result = validation_methods[key](cls, value) if not instance else validation_methods[key](value)
+                if is_valid:
+                    clean_data[key] = result
+                else:
+                    error_messages[key] = result
+            else:
+                error_messages[key] = f"Validation for '{key}' is not supported."
+
+        # Return results
+        if error_messages:
+            return False, error_messages
+        return True, clean_data
     def __str__(self) -> str:
         return self.username
 
@@ -177,7 +222,7 @@ class Tokens(Base):
         self.token_time = token_time  # Expiry time for tokens in seconds
         self.user_id = user_id
     @classmethod
-    def create(cls, user_id=None, token_time=21600, ):
+    def create(cls, user_id=None, token_time=86400 ):
         instance = cls.__new__(cls)
         result = instance.validate_all(user_id, token_time )
         if not result[0]:
@@ -229,10 +274,16 @@ class Tokens(Base):
 
 if __name__ == "__main__":
     user = Users.create("johziko", "john@example.com", "securePassword123", "profile.jpg")
-    if not user[0]:
-        print("error:", user)
-    else:
-        print(f"User created:,\n{ user[1].to_dict()}\n\n")
-    token = Tokens.create(user_id=user[1].id)
-    print(f"token instance:\n {token}\n\n {token[1].to_save()}")
-    # print(f"time test : {token.validate_exp('1500')}")
+    user = Users(username="john_doe", email="john@example.com", password="securePass1")
+
+    # Example of validating all attributes
+    data_to_validate = {
+        "username": "newuser",
+        "email": "new_user@example.com",
+        # "password": "NewPass123",
+        # "image": "profile.png"
+    }
+    result = user.validate_dict(data_to_validate)
+
+    print( result)
+

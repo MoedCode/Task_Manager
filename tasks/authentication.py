@@ -62,6 +62,8 @@ class Authentication:
     def authenticate(self, username=None, password=None):
 
         query = users_stor.get_by("username", username)
+        if not query[0]:
+            return False, query[1]
         validPWD = self.check_PWD_256(plain_password=password, hashed_password=query[1]["password"])
         if not query[0] or  not validPWD:
             if not validPWD:
@@ -114,6 +116,44 @@ class Authentication:
             return False, query
         return True, "user logged out"
 
+
+    def update_user(self, user={},data={}):
+        if not user or not data :
+            return False , "5od pa3dak we amshe  ala"
+
+        username = user["username"] or None
+        password = user["password"] or None
+        if not username or not password:
+            return False, f"No {'password' if not password else ''} {'username' if not username else ''}"
+
+        query = users_stor.get_by(key="username", value=username)
+        if not query[0]:
+            return False, "no valid credential 1"
+        valid_PWD = self.check_PWD_256(plain_password=password, hashed_password=query[1]["password"])
+        if not valid_PWD:
+            return  False, "no valid credential 2"
+        idx = query[2]
+        clean_data = Users.validate_dict(data=data)
+        if not clean_data[0]:
+            return clean_data
+        if "password" in clean_data[1]:
+            clean_data[1]["password"]= self.hash_256(clean_data[1]["password"])
+        self.logout(user=query[1])
+        for key, value in clean_data[1].items():
+            users_stor.session[idx][key] = value
+            users_stor.save()
+        return clean_data[1]
+
+    def is_auth(self, headers={}, token=""):
+        if not token and not headers:
+            return False, "No valid token or headers"
+        if not token :
+            token = headers.get("Authorization", "")
+        query = self.validate_token(token)
+        if not query[0]:
+            return False,  f" {query[1]}"
+        return True, query[1]
+
     def login_user(self, user={}):
         # if not isinstance(user, Users):
         if user["class_name"] != "Users":
@@ -125,11 +165,13 @@ class Authentication:
 
         if  not result[0]:
             return False, f"{self.__class__.__name__}.login()\n {result[1]} "
-        exi_res = tokens_stor.is_exist("user_id", query[1]["id"])
-        # if not exi_res[]
-        print(f"exi_res :: {exi_res}")
-        if exi_res[0] == "Exist":
-            return False, f"user {query[1]['username']} is already logged in"
+        exi_res = tokens_stor.get_by("user_id", query[1]["id"])
+
+
+        if exi_res[0]:
+            idx = exi_res[2]
+            tokens_stor.session.pop(idx)
+            tokens_stor.save()
         token_dict = result[1].to_save()
         adding = tokens_stor.add(token_dict)
         saving = tokens_stor.save()
@@ -140,9 +182,21 @@ class Authentication:
 
 if __name__  == "__main__":
     auth = Authentication()
-    query =  users_stor.get_by("username", "alsamurai")
+    # query =  users_stor.get_by("username", "alsamurai")
     # print(auth.authenticate({})query = users_stor.get_by("username", "alsamurai")
 
-    print(f"user : {query[1]}")
-    print(f"auth.login(user): {auth.login(query[1])}")
-    print(f"auth.is_login(user): {auth.is_login(query[1])}")
+    # print(f"user : {query[1]}")
+    # print(f"auth.login(user): {auth.login(query[1])}")
+    # print(f"auth.is_login(user): {auth.is_login(query[1])}")
+    user = Users.create(username="john_doe", email="john@example.com", password="securePass1")
+
+    # Example of validating all attributes
+    data_to_validate = {
+        "username": "newuser",
+        "email": "new_user@example.com",
+        "password": "NewPass123",
+        "image": "profile.png",
+    }
+    ProCoderx0 = {"username":"ProCoderx0", "password":"ProCoderx0"}
+    x = auth.update_user(user=ProCoderx0, data=data_to_validate)
+    print(x)
