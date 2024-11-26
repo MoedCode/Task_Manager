@@ -103,12 +103,12 @@ class CsvStorage():
         if not  filter_data["values"]: error_msg += "No valid value to filter, "
         if error_msg:
             return [False, {"Error":error_msg}]
-        column = self.get_columns(column_name)
+        column = self.get_columns(column_name)[0]
         if not column[0]:
             return [False, {"Error":f"column name {column_name} not valid"}]
 
         filterMethod = filter_data["method"].lower()
-        filterValue = filter_data["value"].lower()
+        if isinstance(filter_data["values"], str):filterValue = filter_data["values"].lower()
         if filterMethod in  ("start_with", "start with", "startwith"):
             matching_result = []
             for value in column:
