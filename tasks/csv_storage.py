@@ -4,6 +4,9 @@ import csv
 import os
 from collections import Counter
 from tasks.main import *
+from typing import List, Dict
+import inspect
+from typing import Union, Dict, List
 class XO:
     immutable = ["x", "o"]
 class OX(XO):
@@ -20,6 +23,173 @@ class CsvStorage():
         self.clm_names = sorted(self.pair_class.KEYS)
         self.immutables = sorted(self.pair_class.immutable_instattr )
         self.inst_name =   inst_name or     pair_class.__name__.lower()
+    def reader(self):
+        try:
+            file = open(self.file_path, mode='r')  # Open the file
+            reader = csv.reader(file)  # Use the file
+            return  file, reader
+        except Exception as e:
+            raise e
+    def get_columns(self, columns_names: str = "", map:bool = False) -> List[str]:
+        """
+        Get one or more CSV columns by their names.
+        Args:
+            columns_names (str): The name(s) of the column(s) to retrieve
+        Returns:
+            List[str]: The values in the specified column(s).
+        """
+        if isinstance(columns_names, str):
+            columns_names = [columns_names]
+
+        file, reader = self.reader()
+        header = next(reader)  # Read the header row
+        try:
+            idxs = [header.index(name) for name in columns_names]
+        except ValueError as e:
+            file.close()
+            return [False, str(ValueError(f"Column '{columns_names}' not found in CSV file."))]
+
+        data = {name: [] for name in columns_names}  # Initialize a dict for results
+        rows = list(reader)  # Convert reader to a list to allow multiple passes
+
+        for idx, name in zip(idxs, columns_names):
+            data[name] = [row[idx] for row in rows]  # Collect column values
+
+
+        file.close()
+        if not map:
+            return [[row[idx] for row in rows] for idx in idxs]
+        return data
+
+    def filter(self, query:dict={}, first=False) ->List[str]:
+        """
+        filters data by provided key value in dict
+        Args:
+        query (dict) : to filter data
+        """
+        value , key = "", ""
+        key = list(query.keys())[0]; value = query[key]
+        file, reader= self.reader()
+        header = next(reader)
+        idx = header.index(key)
+        values_lists = []
+        for row in reader:
+            if row[idx] == value:
+                values_lists += [row[:]]
+                if first:
+                    break
+        if first:
+            file.close()
+            return dict(zip(header, values_lists[0]))
+        map_dicts = []
+        for values in values_lists:
+            map_dicts.append( dict(zip(header, values)))
+        file.close()
+        return map_dicts
+    def search(self, column_name: str = "", filter_data:Dict = {}) -> Union[List[Dict], Dict]:
+        """
+        search - Searches for rows in a dataset that match the given criteria.
+        Args:
+        column_name: (str) The name of the column to search in. Defaults to an empty string.
+        filter_data: (dict) Key-value pairs to filter rows by. Supports nested dictionaries. Defaults to an empty dictionary.
+        Return:
+            - List[Dict]: A list of dictionaries representing matching rows, if successful.
+            - Dict: A dictionary containing error information, if an error occurs.
+        """
+        error_msg = ""
+        if not isinstance(column_name, str): error_msg += "No valid column name, "
+        if not isinstance(filter_data, dict): error_msg += "No data to filter,  "
+        if not  filter_data["method"]: error_msg += "No valid method to filter, "
+        if not  filter_data["values"]: error_msg += "No valid value to filter, "
+        if error_msg:
+            return [False, {"Error":error_msg}]
+        column = self.get_columns(column_name)
+        if not column[0]:
+            return [False, {"Error":f"column name {column_name} not valid"}]
+
+        filterMethod = filter_data["method"].lower()
+        filterValue = filter_data["value"].lower()
+        if filterMethod in  ("start_with", "start with", "startwith"):
+            matching_result = []
+            for value in column:
+                if value.startswith(filterValue):
+                    matching_result +=[value[:]]
+            return matching_result
+    def write_line(self, query:dict={}, to_write:dict={}, W_PWD=False) -> str:
+        """
+            write Line in csv file
+            Args:
+            query (dict) : key value to get the concern line
+            to_write (dict) : data to write the line
+        """
+        if not query or not to_write:
+            return None
+        key  = list(query.keys())[0]; value = query[key]
+        file, reader= self.reader()
+        header = next(reader); idx =  header.index(key)
+        reader = list(reader)
+        '''check if any key in to_write object not  exist in header
+         or not exist but not accessible '''
+        # remove password from not_accessible key if A
+        immutables_copy = self.immutables[:]
+        # Correctly access the stack and the filename of the caller
+        if W_PWD:
+            immutables_copy.remove("password")
+
+        write_k, not_match, not_accessible ,   msg = list(to_write.keys()) , [], [], ""
+        for element in write_k:
+            if element not in header:
+                not_match += [element[:]]
+            if element in immutables_copy:
+                not_accessible +=[element[:]]
+        # confirming error objet
+        if not_match :  msg = " {not_match keys: "+ ", ".join(not_match) + "}"
+        if not_accessible: msg = " {not_accessible keys: "+ ", ".join(not_accessible) + "}"
+        # return errors object if there are an errors
+        if msg:
+            file.close()
+            return {"Error":msg}
+
+        # replacing
+        written_values = ""
+        new_row = []
+        for row in  reader:
+            if row[idx] == value:
+                new_row = row
+
+                DEBUG(f"row[idx]=> {row[idx]}")
+                for i in range(len(row) ):
+                    if header[i] in write_k:
+                        #skip if they are already the same
+                        if row[i] == to_write[header[i]]:
+                            continue
+                        DEBUG(f"{i}")
+                        row[i] = to_write[header[i]]
+                        written_values += f"{header[i]}"
+                        written_values += ":"
+                        written_values += f"{row[i]}"
+                        written_values += ", "
+            if not written_values:
+                file.close()
+                return {"status":False, "message":"no any new value to update"}
+        res = self.write_file(reader=reader, header=header)
+        x = dict(zip(header, new_row))
+        query = {} ; query[key] = x[key]
+        return self.filter(query=query, first=True)
+    def write_file(self, reader:List[List]=[], header:List=[]) -> bool:
+        if not reader:
+            return False
+        if not header:
+            header = self.clm_names
+        with open(self.file_path, mode='w', newline='') as file:
+            writer = csv.writer(file)
+            writer.writerow(header)  # Write the header
+            writer.writerows(reader)
+        return True
+
+
+
+
     def csv_read(self):
 
 

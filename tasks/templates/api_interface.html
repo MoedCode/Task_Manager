@@ -17,10 +17,7 @@
             background-color: #f8f9fa;
         }
 
-        .navbar {
-            background-color: #343a40;
-            color: white;
-        }
+
 
         .navbar-brand {
             color: white !important;
@@ -29,10 +26,14 @@
 
         .navbar-nav .nav-item .nav-link {
             color: white;
+            border-radius: 100%;
+
         }
 
         .navbar-nav .nav-item .nav-link:hover {
             color: #ffc107;
+            background-color: #515961;
+
         }
 
         .container {
@@ -70,6 +71,13 @@
         .response-section {
             margin-top: 20px;
         }
+        .navbar {
+            background-color: #343a40;
+            display: flex;
+            flex-direction: row;
+            color: white;
+            gap: 1%;
+        }
     </style>
 </head>
 
@@ -84,7 +92,6 @@
             <li class="nav-item"><a class="nav-link" href="#" data-endpoint="POST /api/update/">Delete Task</a></li>
             <li class="nav-item"><a class="nav-link" href="#" data-endpoint="POST /api/login/">Login</a></li>
             <li class="nav-item"><a class="nav-link" href="#" data-endpoint="POST /api/logout/">Logout</a></li>
-            <li class="nav-item"><a class="nav-link" href="#" data-endpoint="POST /api/selection/">Selection</a></li>
             <li class="nav-item"><a class="nav-link" href="#" data-endpoint="POST /api/selection/">Selection</a></li>
             <li class="nav-item"><a class="nav-link" href="#" data-endpoint="POST /api/update/">Update</a></li>
             <li class="nav-item"><a class="nav-link" href="#" data-endpoint="POST /api/register/">Register</a></li>

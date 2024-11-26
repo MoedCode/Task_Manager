@@ -142,7 +142,7 @@ class Authentication:
         for key, value in clean_data[1].items():
             users_stor.session[idx][key] = value
             users_stor.save()
-        return clean_data[1]
+        return True, clean_data[1]
 
     def is_auth(self, headers={}, token=""):
         if not token and not headers:
@@ -188,15 +188,16 @@ if __name__  == "__main__":
     # print(f"user : {query[1]}")
     # print(f"auth.login(user): {auth.login(query[1])}")
     # print(f"auth.is_login(user): {auth.is_login(query[1])}")
-    user = Users.create(username="john_doe", email="john@example.com", password="securePass1")
+    # user = Users.create(username="john_doe", email="john@example.com", password="securePass1")
 
     # Example of validating all attributes
     data_to_validate = {
-        "username": "newuser",
+        "username": "prowuser",
         "email": "new_user@example.com",
-        "password": "NewPass123",
         "image": "profile.png",
     }
+    DEBUG(f'{users_stor.write_line({"username":"newuser"}, data_to_validate, True)}')
+    # print(f'{users_stor.filter({"username":"procodexx1"},True )}')
     ProCoderx0 = {"username":"ProCoderx0", "password":"ProCoderx0"}
-    x = auth.update_user(user=ProCoderx0, data=data_to_validate)
-    print(x)
+    # x = auth.update_user(user=ProCoderx0, data=data_to_validate)
+    # print(x)

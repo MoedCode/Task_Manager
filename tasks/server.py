@@ -294,6 +294,14 @@ class RequestHandler(BaseHTTPRequestHandler):
                 return
 
             cat = category + 's' if category[-1] != 's' else category
+            if cat.lower() == "users":
+                result = auth.update_user(user=lock_for, data=update_data)
+                if result[0]:
+                    self.send_response_data({"status":"success", "message":result[1]}, status=200)
+                    return
+                self.send_response_data({"status":"Error", "message":result[1]}, status=200)
+                return
+
             storage = None
             for name ,stor_type in Storages.items():
                 if cat.lower() == name.lower():

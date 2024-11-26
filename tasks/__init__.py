@@ -7,10 +7,10 @@ from rest_framework import status as S
 
 TASKS = []
 
-from .csv_storage import CsvStorage
-from .models import *
+from tasks.csv_storage import CsvStorage
+from tasks.models import *
 
-def DEBUG(format=""):
+def DEBUG(format="", linChar=""):
     # Get the current frame
     frame = inspect.currentframe()
     # Get the caller's frame (where DEUG is called)
@@ -19,12 +19,13 @@ def DEBUG(format=""):
     file_name = os.path.basename(caller_frame.f_code.co_filename)
     line_number = caller_frame.f_lineno
     # Return formatted string
-    print( f"{file_name}, line {line_number} ::\n {format}")
+    print( f"{file_name}, line {line_number} ::{linChar} {format}")
 
 
 tasks_stor = CsvStorage(file_name="Tasks.csv",mode='w', pair_class=Tasks)
 tasks_stor.reload()
-
+# DEBUG(f'{ tasks_stor.search("task", {"method":"startwith", "value":"__"})} ')
+DEBUG(f'{ tasks_stor.get_columns(["task", "user_id"], True)} ')
 users_stor = CsvStorage(file_name="Users.csv", mode='w', pair_class=Users)
 users_stor.reload()
 

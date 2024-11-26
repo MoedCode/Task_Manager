@@ -19,3 +19,8 @@ response = requests.get(url, headers=headers)
 print(response.status_code)
 print(response.text)
 
+def funx():
+    def funy():
+            print("Y")
+    print("X")
+    return {funy:funy()}
