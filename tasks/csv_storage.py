@@ -100,7 +100,77 @@ class CsvStorage():
             map_dicts.append( dict(zip(header, values)))
         file.close()
         return map_dicts
-    def search(self,  query_data:Dict = {}) -> Union[List[Dict], Dict]:
+    def search(self, query_data: Dict = {}) -> Union[List[Dict], Dict]:
+        """
+        search - Searches for rows in a dataset that match the given criteria.
+        Args:
+            query_data: (dict) Contains:
+                - method: (str) Search method ('startwith', 'contain', 'identical').
+                - query: (dict) Key-value pairs to filter rows by.
+                - case_sensitive: (bool, optional) Whether to perform case-sensitive matching. Default is False.
+        Returns:
+            - List[Dict]: Matching rows as a list of dictionaries, if successful.
+            - Dict: Error information, if an error occurs.
+        """
+        # Validate query_data
+        error_msg = ""
+        if not query_data or not isinstance(query_data, dict):
+            return {"Error": "Invalid query_data. Must be a dictionary."}
+
+        query = query_data.get("query", {})
+        method = query_data.get("method", "").lower()
+        case_sensitive = query_data.get("case_sensitive", False)
+
+        if not query:
+            error_msg += "No query provided. "
+        if not method:
+            error_msg += "No method specified. "
+        if method not in ("startwith", "contain", "identical"):
+            error_msg += f"Unsupported method '{method}'. Use 'startwith', 'contain', or 'identical'. "
+
+        if error_msg:
+            return {"Error": error_msg.strip()}
+
+        keys, values = list(query.keys()), list(query.values())
+
+        # Fetch the relevant columns
+        columns_data = self.get_columns(keys, map=True)
+        if isinstance(columns_data, dict) and "Error" in columns_data:
+            return columns_data  # Return error if columns retrieval fails
+
+        header = columns_data.pop("header", [])
+        rows = []
+
+        # Process each row and check for matches
+        for i in range(len(next(iter(columns_data.values())))):  # Loop through rows using column length
+            match = True
+            for key, value in query.items():
+                col_values = columns_data.get(key, [])
+                if i >= len(col_values) or col_values[i] is None:
+                    match = False
+                    break
+
+                col_value = col_values[i] if case_sensitive else col_values[i].lower()
+                value_to_match = value if case_sensitive else value.lower()
+
+                if method == "startwith" and not col_value.startswith(value_to_match):
+                    match = False
+                elif method == "contain" and value_to_match not in col_value:
+                    match = False
+                elif method == "identical" and col_value != value_to_match:
+                    match = False
+
+                if not match:
+                    break
+
+            if match:
+                # Build the row as a dictionary
+                row_dict = {col_name: columns_data[col_name][i] for col_name in keys}
+                rows.append(row_dict)
+
+        return rows if rows else {"Message": "No matching rows found."}
+
+    def search_old(self,  query_data:Dict = {}) -> Union[List[Dict], Dict]:
         """
         search - Searches for rows in a dataset that match the given criteria.
         Args:
