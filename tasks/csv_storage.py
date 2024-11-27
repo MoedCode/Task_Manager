@@ -131,26 +131,22 @@ class CsvStorage():
         if error_msg:
             return {"Error": error_msg.strip()}
 
-        keys, values = list(query.keys()), list(query.values())
+        # Read all data from CSV
+        file, reader = self.reader()
+        header = next(reader)  # Get the header row
+        rows = [dict(zip(header, row)) for row in reader]  # Convert rows to dictionaries
+        file.close()
 
-        # Fetch the relevant columns
-        columns_data = self.get_columns(keys, map=True)
-        if isinstance(columns_data, dict) and "Error" in columns_data:
-            return columns_data  # Return error if columns retrieval fails
-
-        header = columns_data.pop("header", [])
-        rows = []
-
-        # Process each row and check for matches
-        for i in range(len(next(iter(columns_data.values())))):  # Loop through rows using column length
+        # Filter rows based on query
+        matches = []
+        for row in rows:
             match = True
             for key, value in query.items():
-                col_values = columns_data.get(key, [])
-                if i >= len(col_values) or col_values[i] is None:
+                if key not in row:
                     match = False
                     break
 
-                col_value = col_values[i] if case_sensitive else col_values[i].lower()
+                col_value = row[key] if case_sensitive else row[key].lower()
                 value_to_match = value if case_sensitive else value.lower()
 
                 if method == "startwith" and not col_value.startswith(value_to_match):
@@ -164,11 +160,10 @@ class CsvStorage():
                     break
 
             if match:
-                # Build the row as a dictionary
-                row_dict = {col_name: columns_data[col_name][i] for col_name in keys}
-                rows.append(row_dict)
+                matches.append(row)
 
-        return rows if rows else {"Message": "No matching rows found."}
+        return matches if matches else {"Message": "No matching rows found."}
+
 
     def search_old(self,  query_data:Dict = {}) -> Union[List[Dict], Dict]:
         """
