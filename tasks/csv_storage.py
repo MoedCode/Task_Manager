@@ -51,14 +51,25 @@ class CsvStorage():
 
         data = {name: [] for name in columns_names}  # Initialize a dict for results
         rows = list(reader)  # Convert reader to a list to allow multiple passes
+        if not map:
+            file.close()
+            result = [header[:]]  # Initialize the result list
+
+            # Iterate over each column index in idxs
+            for idx in idxs:
+                # For each column index, collect the values from rows
+                column_data = [
+                    row[idx] if idx < len(row) and row[idx] else None  # Check index and handle empty values
+                    for row in rows
+                ]
+                result.append(column_data)  # Append the column data to the result
+            return result
+
 
         for idx, name in zip(idxs, columns_names):
             data[name] = [row[idx] for row in rows]  # Collect column values
 
-
         file.close()
-        if not map:
-            return [[row[idx] for row in rows] for idx in idxs]
         return data
 
     def filter(self, query:dict={}, first=False) ->List[str]:
@@ -86,35 +97,46 @@ class CsvStorage():
             map_dicts.append( dict(zip(header, values)))
         file.close()
         return map_dicts
-    def search(self, column_name: str = "", filter_data:Dict = {}) -> Union[List[Dict], Dict]:
+    def search(self,  query_data:Dict = {}) -> Union[List[Dict], Dict]:
         """
         search - Searches for rows in a dataset that match the given criteria.
         Args:
         column_name: (str) The name of the column to search in. Defaults to an empty string.
-        filter_data: (dict) Key-value pairs to filter rows by. Supports nested dictionaries. Defaults to an empty dictionary.
+        query_data: (dict) Key-value pairs to filter rows by. Supports nested dictionaries. Defaults to an empty dictionary.
         Return:
             - List[Dict]: A list of dictionaries representing matching rows, if successful.
             - Dict: A dictionary containing error information, if an error occurs.
         """
+        # handling potential issues
         error_msg = ""
-        if not isinstance(column_name, str): error_msg += "No valid column name, "
-        if not isinstance(filter_data, dict): error_msg += "No data to filter,  "
-        if not  filter_data["method"]: error_msg += "No valid method to filter, "
-        if not  filter_data["values"]: error_msg += "No valid value to filter, "
+        if not  query_data or not isinstance(query_data, dict): error_msg += "No data to filter,  "
+        # get search method  search keys"column names"" and values
+        query = query_data.get("query", {})
+        method = query_data.get("method", "")
+        keys , values = list(query.keys()) , list(query.values())
+        if not  query_data["method"]: error_msg += "No valid method to filter, "
+        if not  query : error_msg += "No valid query to filter, "
+        if  not keys or not values:
+            error_msg += f"query must be dict for key and values, keys:{keys} , values:{values} "
         if error_msg:
             return [False, {"Error":error_msg}]
-        column = self.get_columns(column_name)[0]
-        if not column[0]:
-            return [False, {"Error":f"column name {column_name} not valid"}]
-
-        filterMethod = filter_data["method"].lower()
-        if isinstance(filter_data["values"], str):filterValue = filter_data["values"].lower()
-        if filterMethod in  ("start_with", "start with", "startwith"):
+        # query all column
+        columns = self.get_columns(keys)
+        if not columns[0]:
+            return columns
+        if ("case_sens", "case_sensitive", ) in query_data:
+            case_sens = query_data["case_sens"] or query_data["case_sensitive"]
+        else: case_sens = False
+        # get search keys
+        # get columns crossponding to search values
+        return columns
+        if not case_sens :
+            values = [value.lower() for value in values]
+            columns = [[el.lower() for el in column] for column in  columns]
+        if method in  ("start_with", "start with", "startwith"):
             matching_result = []
-            for value in column:
-                if value.startswith(filterValue):
-                    matching_result +=[value[:]]
-            return matching_result
+            # for value in
+        # for i in range(len jeys)
     def write_line(self, query:dict={}, to_write:dict={}, W_PWD=False) -> str:
         """
             write Line in csv file

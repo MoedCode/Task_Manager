@@ -1,4 +1,4 @@
-class_name,created,id,kickoff,priority,task,updated,user_id
+class_name,created,id,kickoff,priority,task,updated,user_id,cc
 Tasks,2024-11-20T22:31:17.558317,783f51d1-ebb5-4415-af59-ac9d827e0d5c,2024-11-30 00:28:00,1,___TASK__,2024-11-20T22:31:17.558325,2b027bdc-7e91-40f4-be0c-521cbbc58f01
 Tasks,2024-11-20T22:43:05.867748,b5339afb-d9f2-4e3d-8a7e-bd9d43b45b33,2024-11-21 00:48:00,1,___TASK__YY,2024-11-20T22:43:05.867756,2b027bdc-7e91-40f4-be0c-521cbbc58f01
 Tasks,2024-11-21T01:32:45.215521,bf4b348e-d0f8-4d8e-9ee8-30c3db6e8d3a,2024-11-21 00:48:00,1,___TASK_XO,2024-11-21T01:32:45.215530,2b027bdc-7e91-40f4-be0c-521cbbc58f01
