@@ -71,7 +71,7 @@ class CsvStorage():
                 row[idx] if idx < len(row) and row[idx] else None  # Check index and handle empty values
                 for row in rows
             ] # Collect column values
-
+        data["header"] = header[:]
         file.close()
         return data
 
@@ -124,16 +124,25 @@ class CsvStorage():
         if error_msg:
             return [False, {"Error":error_msg}]
         # query all column
-        columns = self.get_columns(keys)
-        if not columns[0]:
-            return columns
+        columns = self.get_columns(keys, True)
+
         if ("case_sens", "case_sensitive", ) in query_data:
             case_sens = query_data["case_sens"] or query_data["case_sensitive"]
         else: case_sens = False
         # get search keys
         # get columns crossponding to search values
-        header = columns.pop(0)
-        return
+        # header = columns.pop(0)
+        result_dict = {}
+
+        col_len = len(columns["header"])
+        del columns["header"]
+        for key, clm_values in columns.items():
+            result_dict[key] = []
+            for clm_value in clm_values:
+                DEBUG(f"clm_value {clm_value },: {type(clm_value)}")
+                if clm_value and clm_value.startswith(query[key]):
+                    result_dict[key].append(clm_value)
+        return result_dict
         if not case_sens :
             values = [value.lower() for value in values]
             columns = [[el.lower() for el in column] for column in  columns]
