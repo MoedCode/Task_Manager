@@ -277,6 +277,41 @@ class RequestHandler(BaseHTTPRequestHandler):
             except Exception as e:
                 self.send_response_data({"Error": str(e)}, status=200)
 
+        # search
+        elif path == "/api/search/tasks":
+            res, token_dict = self.get_token_dict()
+            if not res:
+                self.send_response_data({"error": f"Not Found {token_dict}"}, status=401)
+                return
+
+            try:
+                # Extract parameters from the request payload
+                category = data.get("category", "").lowe()
+                if category in "tasks": stor_type = tasks_stor
+                if category in "users": stor_type = users_stor
+                method = data.get("method", "")
+                query = data.get("query", {})
+                case_sensitive = data.get("case_sensitive", False)
+
+                # Ensure the required fields are of the correct types
+                if not isinstance(method, str) or not isinstance(query, dict):
+                    raise ValueError("Invalid data format: 'method' must be a string and 'query' must be a dictionary.")
+                quay["user_id"] = user_id
+                # Call the search method from your CSV-based storage engine
+                results = self.tasks_stor.search(query_data={
+                    "method": method,
+                    "query": query,
+                    "case_sensitive": case_sensitive
+                })
+
+                # Send the search results back to the client
+                self.send_response_data({"results": results}, status=200)
+
+            except Exception as e:
+                # Handle any exceptions gracefully
+                self.send_response_data({"error": f"An error occurred: {str(e)}"}, status=400)
+
+
             #UPDATE
         elif path == "/api/update/":
             res, token_dict = self.get_token_dict()

@@ -36,3 +36,12 @@
 {
     "Authorization": "Bearer e087070b7ae16189c94ee5864b863764d9d00d26a5ad23dda6268f4faaed8a76"
 }
+{
+    "category":"tasks",
+    "method":"startwith",
+    "query":{
+        "task":"__",
+        "user_id":"2b027bdc-7e91-40f4-be0c-521cbbc58f01",
+        "id":"783f51d1-ebb5-4415-af59-ac9d827e0d5c"
+        }
+}
