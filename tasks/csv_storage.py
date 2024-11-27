@@ -67,7 +67,10 @@ class CsvStorage():
 
 
         for idx, name in zip(idxs, columns_names):
-            data[name] = [row[idx] for row in rows]  # Collect column values
+            data[name] = [
+                row[idx] if idx < len(row) and row[idx] else None  # Check index and handle empty values
+                for row in rows
+            ] # Collect column values
 
         file.close()
         return data
@@ -129,7 +132,8 @@ class CsvStorage():
         else: case_sens = False
         # get search keys
         # get columns crossponding to search values
-        return columns
+        header = columns.pop(0)
+        return
         if not case_sens :
             values = [value.lower() for value in values]
             columns = [[el.lower() for el in column] for column in  columns]

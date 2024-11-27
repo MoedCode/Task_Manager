@@ -25,7 +25,7 @@ def DEBUG(format="", linChar=""):
 tasks_stor = CsvStorage(file_name="Tasks.csv",mode='w', pair_class=Tasks)
 tasks_stor.reload()
 # DEBUG(f'{ tasks_stor.search(query_data={"method":"startwith", "query":{"task":"__", "user_id":"sdsadasdasd","cc":"bb"}})} ')
-DEBUG(f'\n\n { tasks_stor.get_columns(["task", "user_id"], "cc")} \n\n')
+DEBUG(f'\n\n { tasks_stor.get_columns(["task", "user_id", "cc"], True)} \n\n')
 users_stor = CsvStorage(file_name="Users.csv", mode='w', pair_class=Users)
 users_stor.reload()
 
