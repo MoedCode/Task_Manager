@@ -162,13 +162,18 @@
             const requestBody = document.getElementById("request-body").value;
             const requestHeaders = document.getElementById("request-headers").value;
 
-            const [methodType, endpoint] = currentEndpoint.split(' ');
-
+            let [methodType, endpoint] = currentEndpoint.split(' ');
+            endpoint = "http://127.0.0.1:5001" + endpoint
+            console.log(`endpoint : ${endpoint }`);
             urlElement.textContent = `${methodType} ${endpoint}`;
+            console.log(`:: URL >> ${methodType} ${endpoint}`);
             responseBody.textContent = 'Loading...';
 
             const ajaxOptions = {
                 url: endpoint,
+                x: function(){
+                    console.log(`url from ajaxibj ${this.url}`);
+                },
                 method: method,
                 contentType: "application/json",
                 headers: mergeHeaders(requestHeaders),
@@ -179,8 +184,10 @@
                 error: (xhr) => {
                     responseBody.textContent = `Error: ${xhr.status} ${xhr.statusText}`;
                 }
-            };
 
+            };
+            ajaxOptions.x()
+            console.log(ajaxOptions.data);
             if (method === "POST") {
                 try {
                     ajaxOptions.data = JSON.stringify(JSON.parse(requestBody));

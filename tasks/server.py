@@ -11,6 +11,9 @@ from authentication import Authentication
 auth = Authentication()
 
 class RequestHandler(BaseHTTPRequestHandler):
+    # Class-level attributes to track the last accepted and rejected requests
+    last_accepted_request = None
+    last_rejected_request = None
     def _set_headers(self, status=200, content_type="application/json"):
         """Set HTTP headers for the response."""
         self.send_response(status)
@@ -19,25 +22,29 @@ class RequestHandler(BaseHTTPRequestHandler):
 
     def serve_html(self, filepath):
         """Serve an HTML file."""
-        print(f"{DEBUG()} >>   filepath[{filepath}]")
-
         try:
             with open(filepath, "rb") as file:
-                print(f"{DEBUG()} >> \n  filepath[{filepath}] \n file[{file}]")
-
                 self._set_headers(200, "text/html")
                 self.wfile.write(file.read())
+
+                # Log the current request as accepted
+                self.__class__.last_accepted_request = f"GET {self.path}"  # Save the request path
+                print(f"Last Accepted Request: {self.__class__.last_accepted_request}")  # Print to terminal
+
         except FileNotFoundError as e:
             # print(f"{DEBUG()} FileNotFoundError[{e}]")
             # raise e
             self._set_headers(404, "text/html")
             self.wfile.write(b"<h1>404 Not Found</h1>")
+            # Log the current request as rejected due to file not found
+            self.__class__.last_rejected_request = f"GET {self.path} (File Not Found)"  # Save the request path
+            print(f"Last Rejected Request: {self.__class__.last_rejected_request}")  # Print to terminal
 
 
     # Set up Jinja2 environment
 
 
-    def serve_html(self, filepath, context=None):
+    def serve_html_1(self, filepath, context=None):
         template_dir = os.path.join("tasks", "templates")  # Update to your templates folder
         env = Environment(loader=FileSystemLoader(template_dir))
         """Serve an HTML file with optional context using Jinja2."""
@@ -428,7 +435,7 @@ class RequestHandler(BaseHTTPRequestHandler):
             self.send_response_data({"Error": "Endpoint not found"}, status=404)
 
 
-def run(server_class=HTTPServer, handler_class=RequestHandler, port=5000):
+def run(server_class=HTTPServer, handler_class=RequestHandler, port=5001):
     server_address = ("", port)
     httpd = server_class(server_address, handler_class)
     print(f"Server running at http://127.0.0.1:{port}/api/")
