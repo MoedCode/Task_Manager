@@ -49,7 +49,7 @@ if __name__ == "__main__":
     query_data = {
             "method":"include",
     "query":{
-        "task":"حنال",
+        "task":"حال",
         "user_id":"7a053833-92d9-4b06-82af-baada0d638b1",
         }
     }

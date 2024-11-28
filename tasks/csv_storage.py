@@ -100,7 +100,7 @@ class CsvStorage():
             map_dicts.append( dict(zip(header, values)))
         file.close()
         return map_dicts
-    def search(self, query_data: Dict = {}) -> Union[List[Dict], Dict]:
+    def search(self, query_data: Dict = {}, caller=None) -> Union[List[Dict], Dict]:
         """
         search - Searches for rows in a dataset that match the given criteria.
         Args:
@@ -113,6 +113,12 @@ class CsvStorage():
             - Dict: Error information, if an error occurs.
         """
         # Validate query_data
+        if "Users.csv" in self.file_path or "Auth.csv" in self.file_path:
+            if caller and (caller.__class__.__name__ == "Authentication" or caller.__name__ == "Authentication" ):
+                pass
+            else :
+
+                return [False, {"Error":"mesh men hena "}]
         error_msg = ""
         if not query_data or not isinstance(query_data, dict):
             return {"Error": "Invalid query_data. Must be a dictionary."}
