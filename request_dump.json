@@ -34,14 +34,20 @@
 }
 
 {
-    "Authorization": "Bearer e087070b7ae16189c94ee5864b863764d9d00d26a5ad23dda6268f4faaed8a76"
+    "Authorization": "Bearer 80da70d78c30e43beda169ca230591acce6fcaa3e72c09f89498a4ef9a68d895"
 }
 {
-    "category":"tasks",
-    "method":"startwith",
-    "query":{
-        "task":"__",
-        "user_id":"2b027bdc-7e91-40f4-be0c-521cbbc58f01",
-        "id":"783f51d1-ebb5-4415-af59-ac9d827e0d5c"
-        }
+"category":"tasks",
+"method":"startwith",
+"query":{
+    "task":"Fight",
+    "user_id":"7a053833-92d9-4b06-82af-baada0d638b1"
+    }
+}
+
+{
+"kickoff":"2025-01-30 00:28:00",
+"priority":"1",
+"task":"Fight Or Flight "
+
 }

@@ -278,7 +278,7 @@ class RequestHandler(BaseHTTPRequestHandler):
                 self.send_response_data({"Error": str(e)}, status=200)
 
         # search
-        elif path == "/api/search/tasks":
+        elif path == "/api/search/":
             res, token_dict = self.get_token_dict()
             if not res:
                 self.send_response_data({"error": f"Not Found {token_dict}"}, status=401)
@@ -286,9 +286,11 @@ class RequestHandler(BaseHTTPRequestHandler):
 
             try:
                 # Extract parameters from the request payload
-                category = data.get("category", "").lowe()
-                if category in "tasks": stor_type = tasks_stor
-                if category in "users": stor_type = users_stor
+                category = data.get("category", "").lower()
+                if category in "tasks": stor_type , Cls= tasks_stor, Tasks
+                if category in "users": stor_type, Cls = users_stor, Users
+                forbidden_keys = Cls.immutable_instattr
+
                 method = data.get("method", "")
                 query = data.get("query", {})
                 case_sensitive = data.get("case_sensitive", False)
@@ -296,21 +298,26 @@ class RequestHandler(BaseHTTPRequestHandler):
                 # Ensure the required fields are of the correct types
                 if not isinstance(method, str) or not isinstance(query, dict):
                     raise ValueError("Invalid data format: 'method' must be a string and 'query' must be a dictionary.")
-                quay["user_id"] = user_id
+                query["user_id"] = token_dict["user_id"]
                 # Call the search method from your CSV-based storage engine
-                results = self.tasks_stor.search(query_data={
+                results = stor_type.search(query_data={
                     "method": method,
                     "query": query,
                     "case_sensitive": case_sensitive
                 })
-
+                if not results[0]:
+                    self.send_response_data({"error": f"{results}"}, status=200)
+                    return
+                for res_dict in results:
+                    res_dict["Task Add Time"] = res_dict["created"]
+                    for key in forbidden_keys: del res_dict[key]
                 # Send the search results back to the client
                 self.send_response_data({"results": results}, status=200)
 
             except Exception as e:
                 # Handle any exceptions gracefully
-                self.send_response_data({"error": f"An error occurred: {str(e)}"}, status=400)
-
+                self.send_response_data({"error": f"An error occurred: {str(e)}"}, status=200)
+                raise e
 
             #UPDATE
         elif path == "/api/update/":

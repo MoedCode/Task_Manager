@@ -46,6 +46,8 @@ class Base:
         return serialized
 class Tasks(Base):
     KEYS = ["class_name","task", "priority", "kickoff", "id", "user_id", "created", "updated"]
+    immutable_instattr = ["created","class_name",  "updated"]
+
     def __init__(self, task, priority, kickoff, user_id):
         super().__init__()
         self.task = task

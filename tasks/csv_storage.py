@@ -104,8 +104,8 @@ class CsvStorage():
         """
         search - Searches for rows in a dataset that match the given criteria.
         Args:
-            query_data: (dict) Contains:
-                - method: (str) Search method ('startwith', 'contain', 'identical').
+            query_data: (dict) includes:
+                - method: (str) Search method ('startwith', 'include', 'identical').
                 - query: (dict) Key-value pairs to filter rows by.
                 - case_sensitive: (bool, optional) Whether to perform case-sensitive matching. Default is False.
         Returns:
@@ -125,8 +125,8 @@ class CsvStorage():
             error_msg += "No query provided. "
         if not method:
             error_msg += "No method specified. "
-        if method not in ("startwith", "contain", "identical"):
-            error_msg += f"Unsupported method '{method}'. Use 'startwith', 'contain', or 'identical'. "
+        if method not in ("startwith", "include", "identical"):
+            error_msg += f"Unsupported method '{method}'. Use 'startwith', 'include', or 'identical'. "
 
         if error_msg:
             return {"Error": error_msg.strip()}
@@ -151,7 +151,7 @@ class CsvStorage():
 
                 if method == "startwith" and not col_value.startswith(value_to_match):
                     match = False
-                elif method == "contain" and value_to_match not in col_value:
+                elif method == "include" and value_to_match not in col_value:
                     match = False
                 elif method == "identical" and col_value != value_to_match:
                     match = False
@@ -162,7 +162,7 @@ class CsvStorage():
             if match:
                 matches.append(row)
 
-        return matches if matches else {"Message": "No matching rows found."}
+        return matches if matches else [False, {"Message": "No matching rows found."}]
 
 
     def search_old(self,  query_data:Dict = {}) -> Union[List[Dict], Dict]:
@@ -173,7 +173,7 @@ class CsvStorage():
         query_data: (dict) Key-value pairs to filter rows by. Supports nested dictionaries. Defaults to an empty dictionary.
         Return:
             - List[Dict]: A list of dictionaries representing matching rows, if successful.
-            - Dict: A dictionary containing error information, if an error occurs.
+            - Dict: A dictionary includeing error information, if an error occurs.
         """
         # handling potential issues
         error_msg = ""
@@ -439,3 +439,4 @@ class CsvStorage():
             for index in indexes:
                 self.session.pop(index)
                 self.save()
+

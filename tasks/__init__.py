@@ -45,3 +45,12 @@ S404 = S.HTTP_404_NOT_FOUND
 S422 = S.HTTP_422_UNPROCESSABLE_ENTITY
 
 
+if __name__ == "__main__":
+    query_data = {
+            "method":"include",
+    "query":{
+        "task":"حنال",
+        "user_id":"7a053833-92d9-4b06-82af-baada0d638b1",
+        }
+    }
+    DEBUG(f"{tasks_stor.search(query_data=query_data)}")
