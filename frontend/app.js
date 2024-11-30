@@ -93,7 +93,7 @@ app.post("/api/login/", async (req, res) => {
 });
 
 // Logout User
-app.post("/api/logout/", async (req, res) => {
+app.post("/logout", async (req, res) => {
     try {
         // Clear the token cookie on logout
         res.clearCookie('token');

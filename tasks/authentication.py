@@ -104,17 +104,19 @@ class Authentication:
         if not okay:
             return False, delres
         return  True, delres
-    def logout(self, user={}, user_id=""):
-        if not user and not user_id:
+    def logout(self, user={}):
+        if not user:
             return False, f"Error -- {self.logout}: NULL user and user id"
-        if not user_id  and( user["class_name"] != "Users" or not user["id"]):
-            return False , f"Error -- {self.logout.__name__}: No valid user data  "
-        if user:
-            user_id = user["id"]
-        okay, query = tokens_stor.delete("user_id", user_id)
+        key = list(user.keys())[0]
+        value = user[key]
+        query_user = users_stor.filter({key:value}, True)
+        if not query_user["id"]:
+            return False, f"Error {key} : {value}"
+        user_id = query_user["id"]
+        okay, query = tokens_stor.delete("user_id",  user_id)
         if not okay:
             return False, query
-        return True, "user logged out"
+        return True, f"user with {key}:{value}  logged out"
 
 
     def update_user(self, user={},data={}):

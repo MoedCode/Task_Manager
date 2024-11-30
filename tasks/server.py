@@ -195,17 +195,14 @@ class RequestHandler(BaseHTTPRequestHandler):
 
         elif path == "/api/logout/":
             print(f"{path}: self.headers{self.headers}")
-            if data and data.get("id"):
-                user_id = data.get("id")
-                x =  auth.logout(user_id=user_id)
-                print(f"{path} : user_id {user_id} x{x}")
-                self.send_response_data({"status": "success", "message": f"{self.headers} Logged out"})
+            if data and data.get("user"):
+                user = data.get("user")
+                x =  auth.logout(user=user)
+                self.send_response_data({"status": "success", "message": f"{x}"})
                 return
             auth_header = self.headers.get("Authorization", "")
             print(f" Error -- {path} : auth_header before : {auth_header} {type(auth_header)}")
             if not auth_header:
-
-
                 self.send_response_data({"Error": "Missing Authorization header"}, status=400)
                 return
             parsed_token = auth_header.split(" ")[1]
