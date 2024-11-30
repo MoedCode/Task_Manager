@@ -48,10 +48,15 @@ app.get("/home", async (req, res) => {
             res.status(500).json({ error: "Invalid response structure from backend." });
         }
     } catch (error) {
+        // Redirect to login page if token is missing or invalid
+        if (error.response?.status === 401) {
+            console.log(`Error: ${error.response.data?.error || "Unauthorized"}`);
+            return res.redirect("/login"); // Redirect to login on token error
+        }
+
         res.status(error.response?.status || 500).json(error.response?.data || { error: "Server error" });
     }
 });
-
 
 // Register User
 app.get("/register", (req, res) => {
