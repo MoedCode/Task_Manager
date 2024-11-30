@@ -86,8 +86,8 @@
     <nav class="navbar navbar-expand-lg navbar-dark">
         <a class="navbar-brand" href="#">Tasks App API Interface</a>
         <ul class="navbar-nav ml-auto">
-            <li class="nav-item"><a class="nav-link" href="#" data-endpoint="GET /api/">Home</a></li>
-            <li class="nav-item"><a class="nav-link" href="#" data-endpoint="GET /api/hi/">All Tasks</a></li>
+            <li class="nav-item"><a class="nav-link" onclick="window.location.reload()">Refresh</a></li>
+            <li class="nav-item"><a class="nav-link" href="#" data-endpoint="GET /api/home/"> Home </a></li>
             <li class="nav-item"><a class="nav-link" href="#" data-endpoint="POST /api/add/">Add Task</a></li>
             <li class="nav-item"><a class="nav-link" href="#" data-endpoint="POST /api/update/">Delete Task</a></li>
             <li class="nav-item"><a class="nav-link" href="#" data-endpoint="POST /api/login/">Login</a></li>
@@ -163,7 +163,11 @@
             const requestHeaders = document.getElementById("request-headers").value;
 
             let [methodType, endpoint] = currentEndpoint.split(' ');
-            endpoint = "http://127.0.0.1:5001" + endpoint
+            if (endpoint === "/api/__dev__/__interface__/"){
+                window.location.reload()
+                return
+            }
+            endpoint = "http://127.0.0.1:5000" + endpoint
             console.log(`endpoint : ${endpoint }`);
             urlElement.textContent = `${methodType} ${endpoint}`;
             console.log(`:: URL >> ${methodType} ${endpoint}`);

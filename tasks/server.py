@@ -11,40 +11,18 @@ from authentication import Authentication
 auth = Authentication()
 
 class RequestHandler(BaseHTTPRequestHandler):
-    # Class-level attributes to track the last accepted and rejected requests
-    last_accepted_request = None
-    last_rejected_request = None
+
     def _set_headers(self, status=200, content_type="application/json"):
         """Set HTTP headers for the response."""
         self.send_response(status)
         self.send_header("Content-Type", content_type)
         self.end_headers()
 
-    def serve_html(self, filepath):
-        """Serve an HTML file."""
-        try:
-            with open(filepath, "rb") as file:
-                self._set_headers(200, "text/html")
-                self.wfile.write(file.read())
-
-                # Log the current request as accepted
-                self.__class__.last_accepted_request = f"GET {self.path}"  # Save the request path
-                print(f"Last Accepted Request: {self.__class__.last_accepted_request}")  # Print to terminal
-
-        except FileNotFoundError as e:
-            # print(f"{DEBUG()} FileNotFoundError[{e}]")
-            # raise e
-            self._set_headers(404, "text/html")
-            self.wfile.write(b"<h1>404 Not Found</h1>")
-            # Log the current request as rejected due to file not found
-            self.__class__.last_rejected_request = f"GET {self.path} (File Not Found)"  # Save the request path
-            print(f"Last Rejected Request: {self.__class__.last_rejected_request}")  # Print to terminal
-
 
     # Set up Jinja2 environment
 
 
-    def serve_html_1(self, filepath, context=None):
+    def serve_html(self, filepath, context=None):
         template_dir = os.path.join("tasks", "templates")  # Update to your templates folder
         env = Environment(loader=FileSystemLoader(template_dir))
         """Serve an HTML file with optional context using Jinja2."""
@@ -121,7 +99,7 @@ class RequestHandler(BaseHTTPRequestHandler):
 
 
 #        API INTERFACE
-        if path == "/api/":
+        if path == "/api/__dev__/__interface__/":
             filepath = os.path.join("tasks", "templates", "api_interface.html")
             print(f"{DEBUG()} \n {filepath}")
             self.serve_html(filepath)
@@ -149,7 +127,7 @@ class RequestHandler(BaseHTTPRequestHandler):
 #                 return
 
 #       HOME PAGE
-        elif path == "/" or path == "":
+        elif path == "/login/" :
             res, token_dict = self.get_token_dict()
             if not  res:
                 filepath = os.path.join("tasks", "templates", "base.html")
@@ -170,7 +148,7 @@ class RequestHandler(BaseHTTPRequestHandler):
             self.send_response_data({"message": f"Authorization Header: {auth_header}"})
 
 
-        elif path == "/api/hi/":
+        elif path == "/api/home/":
             res, user_id = self.get_token_dict()
             if not  res:
                 print(f"{DEBUG()} -- {user_id}")
@@ -435,7 +413,7 @@ class RequestHandler(BaseHTTPRequestHandler):
             self.send_response_data({"Error": "Endpoint not found"}, status=404)
 
 
-def run(server_class=HTTPServer, handler_class=RequestHandler, port=5001):
+def run(server_class=HTTPServer, handler_class=RequestHandler, port=5000):
     server_address = ("", port)
     httpd = server_class(server_address, handler_class)
     print(f"Server running at http://127.0.0.1:{port}/api/")
