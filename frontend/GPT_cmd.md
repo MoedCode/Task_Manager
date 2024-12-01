@@ -1,3 +1,36 @@
+# requirements
+    1- i want delete button on each task ..to prevent accidental  deletion do  confirmation step  be displayed
+    but do not window alert
+    2- also add update button that display fields for task  task data that user concern to update
+    (string) `task:`, (string)`kickoff:`  , (int)`priority:`  but kik of is date time filed sopwith specific format cant be change
+    example `2025-01-30 00:28:00` so make a smart date filed input
+# data you need to know
+- delete endpoint url `/api/delete/`
+- update url `/api/update/`
+- delete request data example
+```json
+{"task_id":"4066176f-523e-46f5-91b3-d22e939a5f0a"}
+```
+- update url `/api/update/`
+- update request data example
+```json
+{
+"category": "tasks",
+"lock_for": {
+    "id": "ee241eb9-55ac-4e4a-9b8f-0d90257d993c"
+},
+"update_data": {
+    "kickoff": "2025-01-30 00:28:00",
+    "priority": 1,
+    "task": "lose wight pro1"
+}
+}
+```
+***Note - category, must be allays tasks in case of request to update task
+
+# front end code
+app.js
+```js
 const express = require("express");
 const axios = require("axios");
 const bodyParser = require("body-parser");
@@ -124,50 +157,100 @@ app.get("/logout", async (req, res) => {
     }
 });
 
-app.post("/api/delete/", async (req, res) => {
-    const token = req.cookies.token; // Extract user token from cookie
-    const taskId = req.body.task_id;
-
-    if (!token || !taskId) {
-        return res.status(400).json({ error: "Token or Task ID missing" });
-    }
-
-    try {
-        // Forward the request to the Python backend
-        const response = await axios.post(
-            `${PYTHON_SERVER_URL}/api/delete/`,
-            { task_id: taskId },
-            { headers: { Authorization: `Bearer ${token}` } }
-        );
-
-        res.status(response.status).json(response.data); // Respond with Python server response
-    } catch (error) {
-        res.status(error.response?.status || 500).json(error.response?.data || { error: "Delete failed" });
-    }
-});
-app.post("/api/update", async (req, res) => {
-    const token = req.cookies.token; // Extract user token from cookie
-    const { lock_for, update_data } = req.body;
-    console.log(`token ${token} request bdy ${req.body}`);
-    if (!token || !lock_for?.id || !update_data) {
-        return res.status(400).json({ error: "Invalid update request data" });
-    }
-
-    try {
-        // Forward the update request to the Python backend
-        const response = await axios.post(
-            `${PYTHON_SERVER_URL}/api/update/`,
-            { lock_for, update_data },
-            { headers: { Authorization: `Bearer ${token}` } }
-        );
-
-        res.status(response.status).json(response.data); // Respond with Python server response
-    } catch (error) {
-        res.status(error.response?.status || 500).json(error.response?.data || { error: "Update failed" });
-    }
-});
 
 // Start server
 app.listen(PORT, () => {
     console.log(`Frontend server running at http://127.0.0.1:${PORT}/`);
 });
+
+```
+home.ejs
+
+```ejs
+<%- include('partials/header') %>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <link rel="stylesheet" href="../public/css/style.css"> <!-- The leading slash ensures it's relative to the root of the server -->
+
+
+    <title>Document</title>
+</head>
+<body>
+ <h1>Welcome to Your Tasker</h1>
+<h2>Your Tasks:</h2>
+
+<div class="task-container">
+    <% tasks.forEach(function(task) { %>
+        <div class="card">
+            <h3>Task:</h3>
+            <% Object.keys(task).forEach(function(key) { %>
+                <div class="task-detail">
+                    <strong><%= key %>:</strong> <%= task[key] %>
+                </div>
+            <% }); %>
+        </div>
+    <% }); %>
+</div>
+
+<style>
+
+    /* Ensure all cards are displayed nicely */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+}
+
+/* Container for all the task cards */
+.task-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+    padding: 20px;
+}
+
+/* Card style */
+.card {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 300px;
+    padding: 15px;
+    margin: 10px;
+    transition: transform 0.3s ease;
+}
+
+/* Hover effect for cards */
+.card:hover {
+    transform: scale(1.05);
+}
+
+/* Task detail style */
+.task-detail {
+    margin-bottom: 10px;
+    font-size: 16px;
+}
+
+.task-detail strong {
+    color: #333;
+}
+
+h3 {
+    font-size: 24px;
+    margin-bottom: 10px;
+    text-align: center;
+    color: #333;
+}
+
+</style>
+</body>
+</html>
+
+
+```

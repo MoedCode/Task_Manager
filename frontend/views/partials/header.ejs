@@ -1,32 +1,106 @@
-<!-- Bootstrap CSS -->
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Responsive Navbar with Dropdown and Sidebar</title>
 
-<style>
-    .a7a {
-        background-color: #515961;
-    }
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
 
-    .navbar-brand {
-        color: white !important;
-        font-weight: bold;
-    }
+    <!-- Custom CSS -->
+    <style>
+        .a7a {
+            background-color: #515961;
+            width: 100%;
+        }
 
-    .navbar-nav .nav-item .nav-link {
-        color: rgb(48, 18, 18);
-        border-radius: 100%;
-    }
+        .navbar-brand {
+            color: white !important;
+            font-weight: bold;
+        }
 
-    .navbar-nav .nav-item .nav-link:hover {
-        color: #ffc107;
-        background-color: #515961;
-    }
-</style>
+        .navbar-nav .nav-item .nav-link {
+            color: white !important;
+        }
 
+        .navbar-nav .nav-item .nav-link:hover {
+            color: #ffc107;
+        }
+
+        /* Sidebar behavior (Right-aligned) */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            right: -100%; /* Hide the sidebar initially */
+            height: 100%;
+            width: 20%;
+            background-color: #515961;
+            transition: right 0.3s ease;
+            z-index: 1050;
+            padding-top: 1rem;
+        }
+
+        .sidebar.active {
+            right: 0; /* Show the sidebar */
+        }
+
+        .sidebar .nav-link {
+            color: white;
+            text-align: left;
+            margin: 0.5rem 1rem;
+            display: block;
+        }
+
+        .sidebar .nav-link:hover {
+            color: #ffc107;
+        }
+
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1049;
+        }
+
+        .overlay.active {
+            display: block;
+        }
+    </style>
+</head>
 <body>
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark a7a">
-        <a class="navbar-brand" href="/">Tasks App</a>
-        <ul class="navbar-nav ml-auto">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">Tasks App</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="/home">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/add-task">Add Task</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/delete-task">Delete Task</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/login">Login</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/logout">Logout</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/selection">Selection</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/update-task">Update Task</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/register">Register</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/test">Test</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/search">Search</a></li>
+                </ul>
+            </div>
+            <button class="btn btn-secondary" id="toggle-sidebar">Sidebar</button>
+        </div>
+    </nav>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <ul class="navbar-nav">
             <li class="nav-item"><a class="nav-link" href="/home">Home</a></li>
             <li class="nav-item"><a class="nav-link" href="/add-task">Add Task</a></li>
             <li class="nav-item"><a class="nav-link" href="/delete-task">Delete Task</a></li>
@@ -38,5 +112,31 @@
             <li class="nav-item"><a class="nav-link" href="/test">Test</a></li>
             <li class="nav-item"><a class="nav-link" href="/search">Search</a></li>
         </ul>
-    </nav>
+    </div>
+
+    <!-- Overlay -->
+    <div class="overlay" id="overlay"></div>
+
+    <!-- Bootstrap Bundle with Popper.js -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Custom JavaScript -->
+    <script>
+        const toggleSidebarButton = document.getElementById("toggle-sidebar");
+        const sidebar = document.getElementById("sidebar");
+        const overlay = document.getElementById("overlay");
+
+        // Toggle sidebar and overlay
+        toggleSidebarButton.addEventListener("click", () => {
+            sidebar.classList.toggle("active");
+            overlay.classList.toggle("active");
+        });
+
+        // Close sidebar when clicking on overlay
+        overlay.addEventListener("click", () => {
+            sidebar.classList.remove("active");
+            overlay.classList.remove("active");
+        });
+    </script>
 </body>
+</html>
