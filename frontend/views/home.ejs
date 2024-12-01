@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="../public/css/style.css">
     <title>Task Manager</title>
+    <meta charset="UTF-8">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -167,7 +169,6 @@
         const deleteModal = document.getElementById('deleteModal');
         const updateModal = document.getElementById('updateModal');
         let taskToDelete, taskToUpdate;
-
         // Delete Task
         deleteBtns.forEach(button => {
             button.addEventListener('click', function() {
@@ -176,10 +177,16 @@
             });
         });
 
+
         document.getElementById('confirmDelete').addEventListener('click', async function() {
             try {
-                const token = getCookie('token'); // Get token from cookies
-                await axios.delete('/api/delete', {
+                const token = getCookie('token'); // Get token from cookies7
+
+                x  = {
+                    headers: { Authorization: `Bearer ${token}` },
+                    data: { task_id: taskToDelete }
+                }
+                await axios.delete('/delete', {
                     headers: { Authorization: `Bearer ${token}` },
                     data: { task_id: taskToDelete }
                 });
@@ -214,14 +221,22 @@
         document.getElementById('saveUpdate').addEventListener('click', async function() {
             try {
                 const token = getCookie('token'); // Get token from cookies
+                console.log('Cookies:', document.cookie);
+                console.log('Token:', token);
+
                 const updatedData = {
-                    task_id: taskToUpdate.id,
-                    task: document.getElementById('task').value,
-                    kickoff: document.getElementById('kickoff').value,
-                    priority: document.getElementById('priority').value
+                    category: "tasks",
+                    lock_for: { id: taskToUpdate.id },
+                    update_data: {
+                        task: document.getElementById('task').value,
+                        kickoff: document.getElementById('kickoff').value,
+                        priority: document.getElementById('priority').value
+                    }
                 };
-                await axios.put('/api/update', updatedData, {
-                    headers: { Authorization: `Bearer ${token}` }
+
+                await axios.put('/update', updatedData, {
+                    headers: { Authorization: `Bearer ${token}` },
+                    withCredentials: true // Ensure cookies are sent
                 });
                 location.reload();
             } catch (error) {
@@ -230,6 +245,7 @@
                 updateModal.style.display = 'none';
             }
         });
+
 
         document.getElementById('cancelUpdate').addEventListener('click', function() {
             updateModal.style.display = 'none';

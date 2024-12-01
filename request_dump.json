@@ -51,3 +51,15 @@
 "task":"Fight Or Flight "
 
 }
+# update request
+{
+    "category": "tasks",
+    "lock_for": {
+        "id": "ee241eb9-55ac-4e4a-9b8f-0d90257d993c"
+    },
+    "update_data": {
+        "kickoff": "2025-01-30 00:28:00",
+        "priority": 1,
+        "task": "lose wight pro1"
+    }
+    }

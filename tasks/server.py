@@ -333,10 +333,8 @@ class RequestHandler(BaseHTTPRequestHandler):
             if not storage:
                 self.send_response_data({"status":"Error", "message":f"category {category} not found"}, status=200)
                 return
-            print(f"{DEBUG()} {lock_for}")
             key=list(lock_for.keys())[0]
             value = lock_for[key]
-            print(f"{DEBUG()}  {key}:{value}")
             result = storage.update(key=key,value=value,  data=update_data)
             if not result[0]:
                 self.send_response_data({"status":"Error", "message":f"{result[1]}"}, status=200)
