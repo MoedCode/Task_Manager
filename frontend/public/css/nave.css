@@ -1,0 +1,63 @@
+/* Ensure all cards are displayed nicely */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+}
+.a7a {
+    background-color: #515961;
+    width: 100%;
+}
+
+.navbar-brand {
+    color: white !important;
+    font-weight: bold;
+}
+
+.navbar-nav .nav-item .nav-link {
+    color: white !important;
+}
+
+.navbar-nav .nav-item .nav-link:hover {
+    color: #ffc107;
+}
+
+/* Sidebar behavior (Right-aligned) */
+.sidebar {
+    position: fixed;
+    top: 0;
+    right: -100%; /* Hide the sidebar initially */
+    height: 100%;
+    width: 20%;
+    background-color: #515961;
+    transition: right 0.3s ease;
+    z-index: 1050;
+    padding-top: 1rem;
+}
+
+.sidebar.active {
+    right: 0; /* Show the sidebar */
+}
+
+.sidebar .nav-link {
+    color: white;
+    text-align: left;
+    margin: 0.5rem 1rem;
+    display: block;
+}
+
+.sidebar .nav-link:hover {
+    color: #ffc107;
+}
+
+.overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1049;
+}
