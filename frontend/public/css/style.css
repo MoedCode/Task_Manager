@@ -199,10 +199,21 @@ h1, h2 {
     font-size: 18px;
     margin-bottom: 10px;
 }
+.update{
+    background: linear-gradient(to bottom, #89bbeb, #c2f4bc);
+    color: #333;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 
+}
+.Delete{
+    background: linear-gradient(to bottom, #ff4d4d, #ea65a8);
+    color: #333;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
 .modal-body {
     display: flex;
     flex-direction: column;
+
 }
 
 .modal-footer {

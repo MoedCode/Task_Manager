@@ -5,6 +5,7 @@ const path = require("path");
 const cookieParser = require("cookie-parser");
 const morgan = require("morgan"); // HTTP request logger
 const fs = require("fs"); // File system module for logging
+const { error } = require("console");
 
 const app = express();
 const PORT = 5001;
@@ -174,6 +175,13 @@ app.post("/add/task", async (req, res) => {
         res.status(error.response?.status || 500).json(error.response?.data || { error: "Server error" });
     }
 });
+app.post("/search", async(req, ews)=>{
+    const token = req.cookies.token;
+    if (!token){
+        return res.status(401).json({error:"unauthorized"})
+    }
+    const res
+})
 
 
 // Start server
