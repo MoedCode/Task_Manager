@@ -147,6 +147,33 @@ app.put("/update", async (req, res) => {
         res.status(error.response?.status || 500).json(error.response?.data || { error: "Update failed" });
     }
 });
+// Add Task Endpoint (POST)
+app.post("/add/task", async (req, res) => {
+    const token = req.cookies.token; // Retrieve the token from the cookie
+    if (!token) {
+        return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    try {
+        const { task, kickoff, priority } = req.body;
+
+        // Make the POST request to the Python server to add the task
+        const response = await axios.post(`${PYTHON_SERVER_URL}/api/add/`, {
+            task,
+            kickoff,
+            priority
+        }, {
+            headers: {
+                Authorization: `Bearer ${token}`, // Pass the token in Authorization header
+            }
+        });
+
+        res.status(response.status).json(response.data); // Return the response from Python server
+    } catch (error) {
+        console.error("Error adding task:", error);
+        res.status(error.response?.status || 500).json(error.response?.data || { error: "Server error" });
+    }
+});
 
 
 // Start server

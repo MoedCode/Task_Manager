@@ -108,3 +108,27 @@ h3 {
 .overlay.active {
     display: block;
 }
+/* Button Style Enhancements */
+.add-task-btn {
+    position: fixed;
+    right: 20px;
+    top: 100px; /* Adjusted to make it slightly lower */
+    padding: 15px 30px;
+    background-color: #28a745; /* Green */
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.add-task-btn:hover {
+    background-color: #218838; /* Darker green */
+    transform: scale(1.05);
+}
+
+.add-task-btn:active {
+    transform: scale(0.98); /* Slightly shrink on click */
+}
