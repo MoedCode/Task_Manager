@@ -155,6 +155,22 @@ class Authentication:
         if not query[0]:
             return False,  f" {query[1]}"
         return True, query[1]
+    def get_user(self, headers:dict={}, token:str="") ->List[Dict]:
+        """ check if user authenticated , if so return token , user dict
+            it require headers or token using self.is_auth
+            Args:
+                headers (dict): which is request headers
+                token (str): can path token directly then no headers needed
+                Return:
+                        list of True , token dictionary, user dictionary,
+                        on error returns list of False a appropriate error message
+        """
+        auth_res = self.is_auth(headers, token)
+        if not  auth_res[0]:
+            return list(auth_res)
+        user_id = auth_res[1]["user_id"]
+        user_query = users_stor.filter({"id":user_id}, True)
+        return [True, auth_res[1],user_query ]
 
     def login_user(self, user={}):
         # if not isinstance(user, Users):

@@ -7,7 +7,7 @@ from jinja2 import Environment, FileSystemLoader
 # Import your storage, authentication, and models modules
 from tasks.__init__ import *
 from authentication import Authentication
-
+from typing import Union, Dict, List
 auth = Authentication()
 
 class RequestHandler(BaseHTTPRequestHandler):
@@ -61,7 +61,8 @@ class RequestHandler(BaseHTTPRequestHandler):
 
     def get_token_dict(self):
         return auth.is_auth(self.headers)
-
+    def get_user(self):
+        return auth.get_user(headers=self.headers)
 
     def get_user_tasks(self, user_id=""):
         if not user_id:
@@ -127,6 +128,16 @@ class RequestHandler(BaseHTTPRequestHandler):
 #                 return
 
 #       HOME PAGE
+        elif path  == "/api/auth/":
+            res = self.get_user()
+            if not  res[0]:
+                print(f"{DEBUG()} -- {res[1]}")
+                self.send_response_data({"error": f"Not Found {res[1]}"}, status=401)
+                return
+            # DEBUG(f"{res}")
+            self.send_response_data([res[1], res[2]], status=200)
+            return
+
         elif path == "/login/" :
             res, token_dict = self.get_token_dict()
             if not  res:

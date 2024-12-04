@@ -34,16 +34,17 @@
 }
 {"comment":"procodexx1"}
 {
-    "Authorization": "Bearer 6ef4aa4bc6b2c365302bc7ebe20fc39b0806740cf49c293c3e808cf1173eb6be"
+    "Authorization": "Bearer 424e8f4da4b6bcb42153242829588b1490b88b568ad0f55cf5d32a5022b58cb0"
 }
+# search request  body
 {
-"category":"tasks",
-"method":"startwith",
-"query":{
-    "task":"Fight",
-    "user_id":"7a053833-92d9-4b06-82af-baada0d638b1"
+    "category":"tasks",
+    "method":"startwith",
+    "query":{
+        "task":"Fight",
+        "user_id":"f355aeb1-b656-4a02-927a-898b9119a4fc"
+        }
     }
-}
 
 {
 "kickoff":"2025-01-30 00:28:00",

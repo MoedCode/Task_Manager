@@ -3,7 +3,7 @@ import os
 import inspect
 
 from rest_framework import status as S
-
+from typing import Union, Dict, List
 
 TASKS = []
 

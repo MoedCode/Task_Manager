@@ -92,7 +92,7 @@ app.post("/api/login/", async (req, res) => {
         const response = await axios.post(`${PYTHON_SERVER_URL}/api/login/`, req.body);
 
         if (response.data.token) {
-            res.cookie("token", response.data.token, { httpOnly: true }); // Store token in httpOnly cookie
+            res.cookie("token", response.data.token, { httpOnly: false }); // Store token in httpOnly cookie
         }
 
         res.status(response.status).json(response.data);
@@ -175,14 +175,117 @@ app.post("/add/task", async (req, res) => {
         res.status(error.response?.status || 500).json(error.response?.data || { error: "Server error" });
     }
 });
-app.post("/search", async(req, ews)=>{
+app.post("/search", async(req, res)=>{
     const token = req.cookies.token;
     if (!token){
         return res.status(401).json({error:"unauthorized"})
     }
-    const res
+try{
+    const {category, method, query }  = req.body
+    const response = await axios.post(`${PYTHON_SERVER_URL}/api/search/`,
+        {category, method, query}, {headers: {Authorization: `Bearer ${token}`,} }
+    )
+    res.status(response.status).json(response.data)
+} catch(error){
+    console.log(`Error in search end point : ${error}`);
+    res.status(error.response?.status || 500).json(error.response?.data || { error: "Server error" });
+
+}
+})
+app.get("/search", async (req, res) => {
+    const token = req.cookies.token;
+    console.log(`token form get search ${token}`);
+    if (!token) {
+        return res.redirect("/login");
+    }
+    try {
+        const result = await auth(token);
+        if (!result[0]) {
+            console.error(result[1]);
+            return res.redirect("/login");
+        }
+        const data = Array.isArray(result) ? result.slice(1) : [];
+        // console.log(data);
+        res.render("search", { user:data[1], searchURL:PYTHON_SERVER_URL + "/api/search/" });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Internal Server Error");
+    }
+});
+app.get("/test", (req, res)=>{
+    const token = req.cookies.token;
+    console.log(`__token__ ${token}`);
 })
 
+// New endpoint to forward requests to Python backend
+app.post("/search/forward", async (req, res) => {
+    const { category, method, query } = req.body;
+
+    if (!category || !method || !query) {
+        return res.status(400).json({ error: "Missing required fields: category, method, or query" });
+    }
+
+    try {
+        // Forward the search request to the Python backend
+        const response = await axios.post(`${PYTHON_SERVER_URL}/api/search/`, {
+            category,
+            method,
+            query,
+        }, {
+            headers: {
+                Authorization: req.headers.authorization,
+            },
+        });
+
+        res.status(response.status).json(response.data);
+    } catch (error) {
+        console.error("Error forwarding search request:", error.response?.data || error.message);
+        res.status(error.response?.status || 500).json(error.response?.data || { error: "Search forward failed" });
+    }
+});
+
+
+
+
+async function auth(token = "") {
+    headers =             {
+        headers: {
+            Authorization: "Bearer " + token,
+        },
+    }
+    // console.log(headers);
+    try {
+        const response = await axios.get(
+            `${PYTHON_SERVER_URL}/api/auth/`,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            }
+        );
+        // Check if the status is not 200 (though Axios throws errors for non-2xx)
+        if (response.status !== 200) {
+            return [false, response.data.error || "Unexpected error occurred"];
+        }
+
+        // Return success response
+        return [true, response.data];
+    } catch (error) {
+        // Handle network or server errors
+        return [false, error.response?.data?.error || error.message];
+    }
+}
+
+async function testAuth() {
+    try {
+        const authResult = await auth("dfc0a909623f019bfc60dee1d3d0775366f60bcd9cab3f29b117ae38116dfa14");
+        // console.log(`from auth function`, authResult);
+    } catch (error) {
+        console.error(`Error in auth function:`, error);
+    }
+}
+
+// testAuth();
 
 // Start server
 app.listen(PORT, () => {
