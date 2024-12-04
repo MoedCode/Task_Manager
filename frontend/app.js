@@ -27,6 +27,8 @@ app.use(
 app.use(bodyParser.json());
 app.use(cookieParser()); // For cookie handling
 app.use(express.static(path.join(__dirname, "public/css"))); // Serve static files
+app.use(express.static(path.join(__dirname, 'public')));
+
 app.set("view engine", "ejs"); // Set EJS as template engine
 app.set("views", path.join(__dirname, "views")); // Set views directory
 app.use('/public', express.static(path.join(__dirname, 'public')));
