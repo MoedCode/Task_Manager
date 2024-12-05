@@ -282,7 +282,9 @@ class RequestHandler(BaseHTTPRequestHandler):
                 category = data.get("category", "").lower()
                 if category in "tasks": stor_type , Cls= tasks_stor, Tasks
                 if category in "users": stor_type, Cls = users_stor, Users
-                forbidden_keys = Cls.immutable_instattr
+                forbidden_keys = Cls.immutable_instattr[:]
+                # DEBUG(f"forbidden_keys {forbidden_keys}")
+                # forbidden_keys.remove("id")
 
                 method = data.get("method", "")
                 query = data.get("query", {})
@@ -302,7 +304,7 @@ class RequestHandler(BaseHTTPRequestHandler):
                     self.send_response_data({"error": f"{results}"}, status=200)
                     return
                 for res_dict in results:
-                    res_dict["Task Add Time"] = res_dict["created"]
+                    res_dict["creation_time"] = res_dict["created"]
                     for key in forbidden_keys: del res_dict[key]
                 # Send the search results back to the client
                 self.send_response_data({"results": results}, status=200)

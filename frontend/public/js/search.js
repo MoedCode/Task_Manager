@@ -1,7 +1,7 @@
 // simple_tasker/frontend/public/js/search.js
 
 const defaultSearchURL = "http://127.0.0.1:5001/search/forward";
-
+const resultsContainer = document.getElementById("results");
 function updateAttributes() {
     const category = document.getElementById("category").value;
     const attributeSelect = document.getElementById("attribute");
@@ -37,7 +37,7 @@ function getCookie(name) {
 async function performSearch() {
     const searchBody = getRequestBody();
     const headers = getRequestHeaders();
-    const resultsContainer = document.getElementById("results");
+    // const resultsContainer = document.getElementById("results");
 
     try {
         const response = await axios.post(defaultSearchURL, searchBody, { headers });
@@ -45,14 +45,18 @@ async function performSearch() {
         if (response.data.results) {
             resultsContainer.innerHTML = response.data.results
                 .map(result => `
-                    <div>
+                    <div class="card ">
                         <p><strong>creation time:</strong> ${result.creation_time}</p>
                         <p><strong>Task:</strong> ${result.task}</p>
                         <p><strong>Kickoff:</strong> ${result.kickoff}</p>
                         <p><strong>Priority:</strong> ${result.priority}</p>
                         <p><strong>id :</strong> ${result.id}</p>
-                       <button class="delete-btn" data-id="${result.id}"> Delete Task </button>
-                       <button class="update-btn"data-id="${result.id}"> updateTask </button>
+                        <div class="search-res-btn">
+                       <button class="delete-btn " onclick="deleteTask('${result.id}')"> Delete   </button>
+                       <button class="update-btn" onclick="updateTask(
+                       '${result.id}',' ${result.task}', '${result.kickoff}', '${result.priority}',
+                       )" > Update</button>
+                       </div>
                     </div>
                     <hr>
                 `).join("");
@@ -113,10 +117,79 @@ document.getElementById('debugBtn').addEventListener('click', () => {
     debugInfo.textContent = JSON.stringify(requestDetails, null, 2);
     debugOutput.style.display = 'block';
 });
-function delete_task(taskId){
+function deleteTask(taskId){
 
     if (!taskId){
         resultsContainer.innerHTML += "<p><strong>Error: </strong> No task id </p>"
     }
+    const deleteModal = document.getElementById('deleteModal');
+    deleteModal.style.display = 'flex';
+    document.getElementById('cancelDelete').addEventListener('click', function() {
+        deleteModal.style.display = 'none';
+    });
+    document.getElementById('confirmDelete').addEventListener('click', async function() {
+        try {
+            const token = getCookie('token'); // Get token from cookies7
 
+            await axios.delete('/delete', {
+                headers: { Authorization: `Bearer ${token}` },
+                data: { task_id: taskId }
+            });
+            performSearch()
+        } catch (error) {
+            console.error('Error deleting task:', error);
+        } finally {
+            deleteModal.style.display = 'none';
+        }
+    });
+
+}
+function updateTask(id,task, kickoff, priority){
+    const updateModal = document.getElementById('updateModal');
+    // const updateBtns = document.querySelectorAll('.update-btn');
+    let taskToUpdate;
+    updateModal.style.display = 'flex';
+
+
+            taskToUpdate = {
+                id:id,
+                task:task,
+                kickoff:kickoff,
+                priority:priority
+            };
+
+            document.getElementById('task').value =task.trim();
+            document.getElementById('kickoff').value =kickoff
+            document.getElementById('priority').value =priority
+            updateModal.style.display = 'flex';
+            document.getElementById('saveUpdate').addEventListener('click', async function() {
+                try {
+                    const token = getCookie('token'); // Get token from cookies
+                    const updatedData = {
+                        category: "tasks",
+                        lock_for: { id: taskToUpdate.id },
+                        update_data: {
+                            task: document.getElementById('task').value,
+                            kickoff: document.getElementById('kickoff').value,
+                            priority: document.getElementById('priority').value
+                        }
+                    };
+
+                    await axios.put('/update', updatedData, {
+                        headers: { Authorization: `Bearer ${token}` },
+                        withCredentials: true // Ensure cookies are sent
+                    });
+                    performSearch()
+
+                } catch (error) {
+                    console.error('Error updating task:', error);
+                } finally {
+                    updateModal.style.display = 'none';
+                }
+            });
+    console.log(id,task, kickoff, priority, taskToUpdate);
+    document.getElementById('cancelUpdate').addEventListener('click', function() {
+        updateModal.style.display = 'none';
+    });
+    return
 }
