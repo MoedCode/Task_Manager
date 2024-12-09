@@ -20,22 +20,32 @@
             <h3>Update Task</h3>
         </div>
         <div class="modal-body">
-            <label for="username">username</label>
-            <input type="text" id="username" name="username">
+            <div id="user-modal-view" class="modal-body">
+                    <label for="username">username</label>
+                    <p id="username view" >untitled</p>
+                    <label for="email">email</label>
+                    <p id="email view">untitled</p>
 
-            <label for="email">email</label>
-            <input type="text" id="email" name="email">
+                    <button id="user-update" class="modal-button">Update</button>
+                </div>
+            <div id="modal-body-update" class="modal-body">
+                    <label for="username">username</label>
+                    <input type="text" id="username" name="username">
+
+                    <label for="email">email</label>
+                    <input type="text" id="email" name="email">
 
 
-            <label for="priority">password</label>
-            <input type="text" id="password" name="password">
+                    <label for="priority">password</label>
+                    <input type="text" id="password" name="password">
 
-            <label for="priority">Confirm Password</label>
-            <input type="text" id="password2" name="password2">
+                    <label for="priority">Confirm Password</label>
+                    <input type="text" id="password2" name="password2">
+                <button id="saveUpdate-user" class="modal-button">Save</button>
 
-        </div>
+                </div>
+            </div>
         <div class="modal-footer">
-            <button id="saveUpdate-user" class="modal-button">Save</button>
             <button id="cancelUpdate-user" class="modal-button cancel">Cancel</button>
         </div>
     </div>
@@ -143,9 +153,20 @@
                 }
                 console.log('Profile result:', result[1][1], result.length);
                 const userModal = document.getElementById('userModal');
+                const  userUpdate = document.getElementById('user-update');
+                const  userModUpdate = document.getElementById("modal-body-update");
+                const  userModView = document.getElementById("user-modal-view");
                 userModal.style.display = 'flex';
+                userModView.style.display = 'flex'
+                userModUpdate.style.display = 'none';
+
                 document.getElementById('cancelUpdate-user').addEventListener('click', function() {
                     userModal.style.display = 'none';
+                    return
+                });
+                document.getElementById('user-update').addEventListener('click', function() {
+                    userModUpdate.style.display = 'flex';
+                    userModView.style.display = 'none';
                 });
             } catch (error) {
                 console.error('Error fetching profile:', error);
