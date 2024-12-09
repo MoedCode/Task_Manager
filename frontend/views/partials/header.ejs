@@ -14,34 +14,41 @@
 </head>
 <body>
     <!-- Update Task Modal -->
-<div id="userModal" class="modal">
-    <div class="modal-content update">
+<div id="userModal" class="modal" >
+    <div class="modal-content update" style="width: 65vw;">
         <div class="modal-header">
-            <h3>Update Task</h3>
+            <h3 id="userModal-h3">view Your Data</h3>
         </div>
         <div class="modal-body">
             <div id="user-modal-view" class="modal-body">
-                    <label for="username">username</label>
+                    <label for="username-view">user name</label>
                     <p id="username-view" >untitled</p>
-                    <label for="email">email</label>
+                    <label for="email-view">email</label>
                     <p id="email-view">untitled</p>
 
                     <button id="user-update" class="modal-button">Update</button>
                 </div>
             <div id="modal-body-update" class="modal-body">
-                    <label for="username">username</label>
-                    <input type="text" id="username" name="username">
+                    <label for="update-username">username</label>
+                    <input type="text" id="update-username" name="update-username">
 
-                    <label for="email">email</label>
-                    <input type="text" id="email" name="email">
+                    <label for="update-email">email</label>
+                    <input type="text" id="update-email" name="update-email">
 
 
 
-                    <label for="password">password</label>
-                    <input type="text" id="password" name="password">
+                    <label for="ceck-password">password</label>
+                    <input type="text" id="check-password" name="password">
 
-                    <label for="priority">Confirm Password</label>
-                    <input type="text" id="password2" name="password2">
+                    <hr>
+                    <p> fill it if you just want to update password </p>
+                    <hr>
+                    <label for="update-password">New Password</label>
+                    <input type="text" id="update-password" name="password">
+
+                    <label for="update-password2">Confirm New Password</label>
+                    <input type="text" id="update-password2" name="password2">
+                    <p ><strong  id="user-update-err" style="color: red;"></strong> </p>
                 <button id="saveUpdate-user" class="modal-button">Save</button>
 
                 </div>
@@ -156,14 +163,28 @@
                 //get elements
                     // containers
                 const userModal = document.getElementById('userModal');
+                const userModal_h3 = document.getElementById("userModal-h3");
                 const  userUpdate = document.getElementById('user-update');
                 const  userModUpdate = document.getElementById("modal-body-update");
                 const  userModView = document.getElementById("user-modal-view");
+
                     // sub element
                 const usernameView  = document.getElementById("username-view")
                 const emailView = document.getElementById("email-view")
-                const username = document.getElementById("username")
-                const email = document.getElementById("email")
+                const usernameUpdate = document.getElementById("update-username")
+                const emailUpdate = document.getElementById("update-email")
+
+                const passwordCheck = document.getElementById("check-password")
+                const passwordUpdate = document.getElementById("update-password")
+                const passwordUpdate2 = document.getElementById("update-password2")
+                const useUpdateErr = document.getElementById("user-update-err")
+                function usrUpErr (msg="", time=3000){
+                    useUpdateErr.innerHTML = msg
+                    setTimeout(() => {
+                    useUpdateErr.innerHTML = ""
+
+                    }, time);
+                }
 
                 document.getElementById('cancelUpdate-user').addEventListener('click', function() {
                     userModal.style.display = 'none';
@@ -172,17 +193,35 @@
                 document.getElementById('user-update').addEventListener('click', function() {
                     userModUpdate.style.display = 'flex';
                     userModView.style.display = 'none';
+                    userModal_h3.innerHTML = "Update Your Data"
                 });
-                usernameView.innerHTML = user.username
-                username.value = user.username
-                emailView.innerHTML = user.email
-                email.value = user.email
+
+                document.getElementById('saveUpdate-user').addEventListener('click', function x() {
+                   const  username = usernameUpdate.value.trim()
+                   const  email = emailUpdate.value.trim()
+                    const PWD = passwordCheck.value
+                    const PWD1 = passwordUpdate.value
+                    const PWD2 = passwordUpdate2.value
+                    if ( PWD1  && PWD2 &&( PWD1 !== PWD2)){
+                        usrUpErr("password not match ")
+                        return
+                    }
+
+                    userUpdateObj = {
+                        username:username,
+                        email:email,
+                        password:PWD
+                    }
+                    usrUpErr(JSON.stringify(userUpdateObj))
+                });
+
 
 
 
                 userModal.style.display = 'flex';
                 userModView.style.display = 'flex'
                 userModUpdate.style.display = 'none';
+                userModal_h3.innerHTML = "view Your Data";
 
             } catch (error) {
                 console.error('Error fetching profile:', error);

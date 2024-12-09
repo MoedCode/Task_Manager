@@ -93,18 +93,20 @@ app.get("/login", (req, res) => {
 app.post("/api/login/", async (req, res) => {
     try {
         const response = await axios.post(`${PYTHON_SERVER_URL}/api/login/`, req.body);
-
         if (response.data.token) {
             res.cookie("token", response.data.token, { httpOnly: false }); // Store token in httpOnly cookie
+            console.log(`/api/login/ try ${req.body}`);
+
         }
 
         res.status(response.status).json(response.data);
     } catch (error) {
+        console.log(`/api/login/ catch `,req.body);
         res.status(error.response?.status || 500).json(error.response?.data || { error: "Server error" });
     }
 });
 
-// Logout User
+// Logout User wsl.exe --updat
 app.get("/logout", (req, res) => {
     res.clearCookie("token"); // Clear the token cookie
     res.redirect("/login");

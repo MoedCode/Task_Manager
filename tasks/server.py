@@ -418,7 +418,6 @@ class RequestHandler(BaseHTTPRequestHandler):
             if not result[0]:
                 self.send_response_data({"Error": result[1]}, status=422)
                 return
-            DEBUG(f"\n ::image>> \n {data['image']}")
 
             user_dict = result[1].to_save()
             users_stor.add(user_dict)
