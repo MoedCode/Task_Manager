@@ -22,9 +22,9 @@
         <div class="modal-body">
             <div id="user-modal-view" class="modal-body">
                     <label for="username">username</label>
-                    <p id="username view" >untitled</p>
+                    <p id="username-view" >untitled</p>
                     <label for="email">email</label>
-                    <p id="email view">untitled</p>
+                    <p id="email-view">untitled</p>
 
                     <button id="user-update" class="modal-button">Update</button>
                 </div>
@@ -36,7 +36,8 @@
                     <input type="text" id="email" name="email">
 
 
-                    <label for="priority">password</label>
+
+                    <label for="password">password</label>
                     <input type="text" id="password" name="password">
 
                     <label for="priority">Confirm Password</label>
@@ -151,14 +152,18 @@
                     }, 3000);
                     return
                 }
-                console.log('Profile result:', result[1][1], result.length);
+                let user =  result[1][1]
+                //get elements
+                    // containers
                 const userModal = document.getElementById('userModal');
                 const  userUpdate = document.getElementById('user-update');
                 const  userModUpdate = document.getElementById("modal-body-update");
                 const  userModView = document.getElementById("user-modal-view");
-                userModal.style.display = 'flex';
-                userModView.style.display = 'flex'
-                userModUpdate.style.display = 'none';
+                    // sub element
+                const usernameView  = document.getElementById("username-view")
+                const emailView = document.getElementById("email-view")
+                const username = document.getElementById("username")
+                const email = document.getElementById("email")
 
                 document.getElementById('cancelUpdate-user').addEventListener('click', function() {
                     userModal.style.display = 'none';
@@ -168,6 +173,17 @@
                     userModUpdate.style.display = 'flex';
                     userModView.style.display = 'none';
                 });
+                usernameView.innerHTML = user.username
+                username.value = user.username
+                emailView.innerHTML = user.email
+                email.value = user.email
+
+
+
+                userModal.style.display = 'flex';
+                userModView.style.display = 'flex'
+                userModUpdate.style.display = 'none';
+
             } catch (error) {
                 console.error('Error fetching profile:', error);
                 const profBtn = document.getElementById("user-btn");
