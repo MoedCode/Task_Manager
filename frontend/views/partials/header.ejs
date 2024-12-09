@@ -178,6 +178,10 @@
                 const passwordUpdate = document.getElementById("update-password")
                 const passwordUpdate2 = document.getElementById("update-password2")
                 const useUpdateErr = document.getElementById("user-update-err")
+                usernameUpdate.value = user.username
+                emailUpdate.value = user.email
+                usernameView.innerHTML = user.username
+                emailView.innerHTML = user.email
                 function usrUpErr (msg="", time=3000){
                     useUpdateErr.innerHTML = msg
                     setTimeout(() => {
@@ -197,6 +201,7 @@
                 });
 
                 document.getElementById('saveUpdate-user').addEventListener('click', function x() {
+
                    const  username = usernameUpdate.value.trim()
                    const  email = emailUpdate.value.trim()
                     const PWD = passwordCheck.value
