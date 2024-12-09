@@ -11,7 +11,8 @@ from typing import Union, Dict, List
 from io import BytesIO
 from werkzeug.utils import secure_filename
 from PIL import Image
-
+import cgi
+import os
 # GLOBALS
 auth = Authentication()
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
@@ -51,15 +52,34 @@ class RequestHandler(BaseHTTPRequestHandler):
 
 
     def parse_request_data(self):
-        """Parse JSON request body."""
-        content_length = int(self.headers.get("Content-Length", 0))
-        if content_length == 0:
+        content_type = self.headers.get('Content-Type')
+        if "multipart/form-data" in content_type:
+            boundary = content_type.split("boundary=")[-1]
+            content_length = int(self.headers['Content-Length'])
+            body = self.rfile.read(content_length)
+
+            # Parse multipart form data
+            form = cgi.FieldStorage(
+                fp=io.BytesIO(body),
+                headers=self.headers,
+                environ={"REQUEST_METHOD": "POST", "CONTENT_TYPE": content_type}
+            )
+
+            data = {}
+            for key in form.keys():
+                if form[key].filename:  # This is a file
+                    data[key] = form[key]  # Include the file field
+                else:  # Regular form field
+                    data[key] = form[key].value
+
+            return data
+        elif "application/json" in content_type:
+            content_length = int(self.headers['Content-Length'])
+            raw_data = self.rfile.read(content_length)
+            return json.loads(raw_data)
+        else:
             return {}
-        try:
-            post_data = self.rfile.read(content_length)
-            return json.loads(post_data)
-        except json.JSONDecodeError:
-            return None
+
 
     def send_response_data(self, data, status=200):
         """Helper to send a JSON response."""
@@ -190,15 +210,47 @@ class RequestHandler(BaseHTTPRequestHandler):
         else:
             self.send_response_data({"error": "Not Found"}, status=404)
 
+    def parse_request_data(self):
+        content_type = self.headers.get('Content-Type')
+        if not content_type or not content_type.startswith('multipart/form-data'):
+            self.send_response(400)
+            self.end_headers()
+            self.wfile.write(b"Bad Request: Expected multipart/form-data")
+            return None
+
+        # Parse multipart form data
+        form = cgi.FieldStorage(
+            fp=self.rfile,
+            headers=self.headers,
+            environ={'REQUEST_METHOD': 'POST'}
+        )
+        return form
+
+    def save_uploaded_file(self, field):
+        if field.filename:
+            upload_dir = "uploads/"
+            os.makedirs(upload_dir, exist_ok=True)
+            file_path = os.path.join(upload_dir, field.filename)
+            with open(file_path, "wb") as f:
+                f.write(field.file.read())
+            return file_path
+        return None
 
     def do_POST(self):
-        parsed_path = urlparse(self.path)
-        path = parsed_path.path
-        data = self.parse_request_data()
+        try:
+            parsed_path = urlparse(self.path)
+            if parsed_path.path == "/api/register/":
+                form = self.parse_request_data()
+                if not form:
+                    self.send_response_data({"error": "Invalid form data"}, status=400)
+                    return
 
-        if data is None:
-            self.send_response_data({"Error": "Invalid JSON in request body"}, status=400)
-            return
+                # Process the form data and respond
+                # Example success response
+                self.send_response_data({"success": "Data received successfully!"}, status=200)
+        except Exception as e:
+            self._set_headers(500, "application/json")
+            self.wfile.write(json.dumps({"error": str(e)}).encode())
 
         if path == "/api/login/":
             username = data.get("username")
@@ -391,38 +443,53 @@ class RequestHandler(BaseHTTPRequestHandler):
             self.send_response_data({"status":"success", "message":f"task deleted successfully"}, status=200)
 
         elif path == "/api/register/":
-            DEBUG(f"  {self.headers}")
+            DEBUG(f"Headers: {self.headers}")
+
+            # Parse and validate uploaded files
+            form = self.parse_request_data()
+            if form is None:
+                return
+
             not_match = [key for key in data.keys() if key not in Users.KEYS]
             if not_match:
                 self.send_response_data(
-                    {"Error": f"Invalid keys provided: {not_match}"}, status=200
+                    {"Error": f"Invalid keys provided: {not_match}"}, status=422
                 )
                 return
 
+            # Validate username and email existence
             username_query = users_stor.is_exist("username", data["username"])
             email_query = users_stor.is_exist("email", data["email"])
             if username_query[0] == "Exist":
                 self.send_response_data(
                     {"Error": f"User with username {data['username']} already exists"},
-                    status=200,
+                    status=409
                 )
                 return
             if email_query[0] == "Exist":
                 self.send_response_data(
                     {"Error": f"User with email {data['email']} already exists"},
-                    status=200
+                    status=409
                 )
                 return
 
+            # Save uploaded image if provided
+            if 'image' in form:
+                image_field = form['image']
+                image_path = self.save_uploaded_file(image_field)
+                data['image'] = image_path if image_path else None
+
+            # Create the user
             result = Users.create(**data)
             if not result[0]:
                 self.send_response_data({"Error": result[1]}, status=422)
                 return
-            DEBUG(f"\n ::image>> \n {data['image']}")
 
             user_dict = result[1].to_save()
             users_stor.add(user_dict)
             users_stor.save()
+
+            # Log the user in and generate a token
             log_res = auth.login_user(user_dict)
             if not log_res[0]:
                 self.send_response_data({"Error": log_res[1]}, status=400)
@@ -430,8 +497,12 @@ class RequestHandler(BaseHTTPRequestHandler):
 
             token = log_res[1]
             self.send_response_data(
-                {"success": "User registered successfully", "token": token, "user": user_dict},
-                status=201,
+                {
+                    "success": "User registered successfully",
+                    "token": token,
+                    "user": user_dict
+                },
+                status=201
             )
             return
         elif path == "/api/register2/":

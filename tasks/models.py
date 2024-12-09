@@ -47,7 +47,18 @@ class Base:
 class Tasks(Base):
     KEYS = ["class_name","task", "priority", "kickoff", "id", "user_id", "created", "updated"]
     immutable_instattr = ["created","class_name",  "updated"]
+    SCHEMA = {
+        "class_name": {"type": "str", "length": 50},
+        "id": {"type": "str", "length": 50},
+        "task": {"type": "str", "length": 150},
+        "kickoff": {"type": "str", "length": 150},
+        "created": {"type": "str", "length": 150},
+        "updated": {"type": "str", "length": 150},
+    }
 
+    @classmethod
+    def get_keys(cls):
+        return list(cls.SCHEMA.keys())
     def __init__(self, task, priority, kickoff, user_id):
         super().__init__()
         self.task = task

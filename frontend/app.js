@@ -24,6 +24,7 @@ app.use(
         stream: accessLogStream, // Log requests to access.log
     })
 );
+
 app.use(bodyParser.json());
 app.use(cookieParser()); // For cookie handling
 app.use(express.static(path.join(__dirname, "public/css"))); // Serve static files
@@ -214,6 +215,26 @@ app.get("/search", async (req, res) => {
         res.status(500).send("Internal Server Error");
     }
 });
+app.get("/api/auth", async (req, res) => {
+    const token = req.cookies.token;
+    console.log(`FORM api/auth ${token}`);
+    if (!token) {
+        return res.status(401).json({ authorized: false, message: "Not logged in" });
+    }
+    try {
+        const result = await auth(token);
+        if (!result[0]) {
+            console.error(result[1]);
+            return res.status(401).json({ authorized: false, message: "Invalid token" });
+        }
+        console.log("\n\n RESULT FORM api/auth \n", result);
+        return res.status(200).json(result);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Internal Server Error");
+    }
+});
+
 app.get("/test", (req, res)=>{
     const token = req.cookies.token;
     console.log(`__token__ ${token}`);

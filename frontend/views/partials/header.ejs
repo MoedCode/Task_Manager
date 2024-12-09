@@ -13,6 +13,33 @@
 
 </head>
 <body>
+    <!-- Update Task Modal -->
+<div id="userModal" class="modal">
+    <div class="modal-content update">
+        <div class="modal-header">
+            <h3>Update Task</h3>
+        </div>
+        <div class="modal-body">
+            <label for="username">username</label>
+            <input type="text" id="username" name="username">
+
+            <label for="email">email</label>
+            <input type="text" id="email" name="email">
+
+
+            <label for="priority">password</label>
+            <input type="text" id="password" name="password">
+
+            <label for="priority">Confirm Password</label>
+            <input type="text" id="password2" name="password2">
+
+        </div>
+        <div class="modal-footer">
+            <button id="saveUpdate-user" class="modal-button">Save</button>
+            <button id="cancelUpdate-user" class="modal-button cancel">Cancel</button>
+        </div>
+    </div>
+    </div>
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark a7a">
         <div class="container-fluid">
@@ -28,6 +55,8 @@
                     <li class="nav-item"><a class="nav-link" href="/selection">Selection</a></li>
                     <li class="nav-item"><a class="nav-link" href="/register">Register</a></li>
                     <li class="nav-item"><a class="nav-link" href="/search">Search</a></li>
+                    <li class="nav-item"><button class="nav-link" onclick="profile()" id="user-btn">Profile</button></li>
+
                 </ul>
             </div>
             <button class="btn btn-secondary" id="toggle-sidebar">Sidebar</button>
@@ -43,6 +72,7 @@
             <li class="nav-item"><a class="nav-link" href="/selection">Selection</a></li>
             <li class="nav-item"><a class="nav-link" href="/register">Register</a></li>
             <li class="nav-item"><a class="nav-link" href="/search">Search</a></li>
+            <li class="nav-item"><button id="user-btn">profile</button></li>
         </ul>
     </div>
 
@@ -53,7 +83,9 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
 
     <!-- Custom JavaScript -->
+
     <script>
+
         const toggleSidebarButton = document.getElementById("toggle-sidebar");
         const sidebar = document.getElementById("sidebar");
         const overlay = document.getElementById("overlay");
@@ -69,6 +101,62 @@
             sidebar.classList.remove("active");
             overlay.classList.remove("active");
         });
+
+        // user Profile
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+        }
+        function getRequestHeaders() {
+            const token = getCookie('token'); // Get token from cookies
+            if (!token) {
+                //alert('Authorization token is missing!');
+                return  [false, 'Authorization token not found in cookies']
+            }
+            return {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json"
+            };
+        }
+
+        async function profile() {
+            try {
+                const response = await fetch('/api/auth', {
+                    method: 'GET',
+                    credentials: 'include', // Include cookies in the request
+                });
+
+                if (!response.ok) {
+                    throw new Error('Not authorized');
+                }
+                const result = await response.json();
+
+                const profBtn = document.getElementById("user-btn");
+                if (!result[0]) {
+                    console.log(result);
+                    profBtn.innerHTML = "Not authorized";
+                    setTimeout(() => {
+                        profBtn.innerHTML = "Profile";
+                    }, 3000);
+                    return
+                }
+                console.log('Profile result:', result[1][1], result.length);
+                const userModal = document.getElementById('userModal');
+                userModal.style.display = 'flex';
+                document.getElementById('cancelUpdate-user').addEventListener('click', function() {
+                    userModal.style.display = 'none';
+                });
+            } catch (error) {
+                console.error('Error fetching profile:', error);
+                const profBtn = document.getElementById("user-btn");
+                profBtn.innerHTML = "Not authorized";
+                setTimeout(() => {
+                    profBtn.innerHTML = "Profile";
+                }, 3000);
+            }
+
+        }
     </script>
 </body>
 </html>

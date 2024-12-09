@@ -1,7 +1,10 @@
 // simple_tasker/frontend/public/js/search.js
 
 const defaultSearchURL = "http://127.0.0.1:5001/search/forward";
+
 const resultsContainer = document.getElementById("results");
+const value = document.getElementById("value").value;
+const  xx = value
 function updateAttributes() {
     const category = document.getElementById("category").value;
     const attributeSelect = document.getElementById("attribute");
@@ -74,7 +77,7 @@ function getRequestBody() {
     const method = document.getElementById("method").value;
     const attribute = document.getElementById("attribute").value;
     const value = document.getElementById("value").value;
-
+    const  xx = value
     return {
         category,
         method,
@@ -179,7 +182,7 @@ function updateTask(id,task, kickoff, priority){
                         headers: { Authorization: `Bearer ${token}` },
                         withCredentials: true // Ensure cookies are sent
                     });
-                    performSearch()
+                    window.location.reload()
 
                 } catch (error) {
                     console.error('Error updating task:', error);
@@ -193,3 +196,5 @@ function updateTask(id,task, kickoff, priority){
     });
     return
 }
+document.getElementById("value").value = xx
+performSearch()

@@ -170,7 +170,9 @@ class Authentication:
             return list(auth_res)
         user_id = auth_res[1]["user_id"]
         user_query = users_stor.filter({"id":user_id}, True)
-        return [True, auth_res[1],user_query ]
+        del user_query["password"]
+        del user_query["class_name"]
+        return (True, auth_res[1],user_query )
 
     def login_user(self, user={}):
         # if not isinstance(user, Users):

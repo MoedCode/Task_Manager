@@ -25,8 +25,8 @@
             <h3>Add New Task</h3>
         </div>
         <div class="modal-body ">
-            <label for="addTask">Task:</label>
-            <input type="text" id="addTask" name="task">
+            <label for="addTask"  >Task:</label>
+            <input type="text" id="addTask" name="task" size="150">
 
             <label for="addKickoff">Kickoff (DateTime):</label>
             <input type="datetime-local" id="addKickoff" name="kickoff">
@@ -52,11 +52,12 @@
                 </div>
             <% }); %>
 
-            <!-- Delete Button -->
-            <button class="delete-btn" data-id="<%= task.id %>">Delete Task</button>
+            <div class="search-res-btn">
+            <button class="delete-btn" data-id="<%= task.id %>">Delete</button>
 
             <!-- Update Button -->
-            <button class="update-btn" data-id="<%= task.id %>" data-task="<%= task.task %>" data-kickoff="<%= task.kickoff %>" data-priority="<%= task.priority %>">Update Task</button>
+            <button class="update-btn" data-id="<%= task.id %>" data-task="<%= task.task %>" data-kickoff="<%= task.kickoff %>" data-priority="<%= task.priority %>">Update</button>
+            </div>
         </div>
     <% }); %>
 </div>
