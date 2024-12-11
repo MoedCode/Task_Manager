@@ -90,7 +90,8 @@
             <li class="nav-item"><a class="nav-link" href="/selection">Selection</a></li>
             <li class="nav-item"><a class="nav-link" href="/register">Register</a></li>
             <li class="nav-item"><a class="nav-link" href="/search">Search</a></li>
-            <li class="nav-item"><button id="user-btn">profile</button></li>
+            <li class="nav-item"><button class="nav-link" onclick="profile()" id="user-btn">Profile</button></li>
+
         </ul>
     </div>
 
@@ -152,7 +153,6 @@
 
                 const profBtn = document.getElementById("user-btn");
                 if (!result[0]) {
-                    console.log(result);
                     profBtn.innerHTML = "Not authorized";
                     setTimeout(() => {
                         profBtn.innerHTML = "Profile";
@@ -200,27 +200,50 @@
                     userModal_h3.innerHTML = "Update Your Data"
                 });
 
-                document.getElementById('saveUpdate-user').addEventListener('click', function x() {
-
+                document.getElementById('saveUpdate-user').addEventListener('click', async  function () {
+                    const token = getCookie('token');
                    const  username = usernameUpdate.value.trim()
                    const  email = emailUpdate.value.trim()
                     const PWD = passwordCheck.value
                     const PWD1 = passwordUpdate.value
                     const PWD2 = passwordUpdate2.value
-                    if ( PWD1  && PWD2 &&( PWD1 !== PWD2)){
-                        usrUpErr("password not match ")
+                    if ( (PWD1  ||  PWD2) && PWD1 !== PWD2){
+                        usrUpErr(`password not match `)
                         return
                     }
 
-                    userUpdateObj = {
+                    const userUpdateObj = {
                         username:username,
                         email:email,
-                        password:PWD
+
+                        password:PWD,
+
                     }
-                    usrUpErr(JSON.stringify(userUpdateObj))
+                    usrUpErr(JSON.stringify(userUpdateObj), 500000)
+                    console.log( { Authorization: `Bearer ${token}` });
+                    console.log({username:user.username, password:user.password});
+                    reqBody = {
+                            category:"users",
+                            lock_for:{username:user.username, password:userUpdateObj.password},
+                            update_data: userUpdateObj,
+                    }
+                    try{
+                    const reponse =await axios.put('/update', reqBody, {
+                        headers: { Authorization: `Bearer ${token}` },
+                        withCredentials: true // Ensure cookies are sent
+                    });
+                    userModal.style.display  = 'none';
+                } catch(error){
+                    console.log("axios Error", error);
+                }
+                    if ( (PWD1  && PWD2) && ( PWD1 == PWD2) ){
+                        userUpdateObj.new_password = PWD1
+                    }
+
+
+
+
                 });
-
-
 
 
                 userModal.style.display = 'flex';
@@ -236,6 +259,12 @@
                     profBtn.innerHTML = "Profile";
                 }, 3000);
             }
+
+        }
+        async function sendRequest(reqURL=""){
+
+           const response = await axios(reqURL)
+
 
         }
     </script>

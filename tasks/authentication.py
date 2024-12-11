@@ -122,7 +122,7 @@ class Authentication:
     def update_user(self, user={},data={}):
         if not user or not data :
             return False , "5od pa3dak we amshe  ala"
-
+        DEBUG(data)
         username = user["username"] or None
         password = user["password"] or None
         if not username or not password:
@@ -136,14 +136,19 @@ class Authentication:
             return  False, "no valid credential 2"
         idx = query[2]
         clean_data = Users.validate_dict(data=data)
+        DEBUG(clean_data)
         if not clean_data[0]:
+            DEBUG()
             return clean_data
         if "password" in clean_data[1]:
             clean_data[1]["password"]= self.hash_256(clean_data[1]["password"])
+        DEBUG(f"clean dat {clean_data[1]}")
         self.logout(user=query[1])
         for key, value in clean_data[1].items():
             users_stor.session[idx][key] = value
-            users_stor.save()
+        users_stor.session[idx]["updated"] = datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f")
+        users_stor.save()
+
         return True, clean_data[1]
 
     def is_auth(self, headers={}, token=""):

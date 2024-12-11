@@ -7,6 +7,51 @@ const morgan = require("morgan"); // HTTP request logger
 const fs = require("fs"); // File system module for logging
 const { error } = require("console");
 
+/*                                                  GLOBALS                                                         */
+
+function DEBUG(input = "", linChar = "") {
+    // Get the stack trace
+    const stack = new Error().stack;
+    const stackLines = stack.split("\n");
+
+    // Extract the caller's line (stack[2] gives the caller information)
+    const callerInfo = stackLines[2].trim();
+
+    // Parse the file name and line number
+    const match = callerInfo.match(/at (.+):(\d+):(\d+)/);
+    let fileInfo = "Unknown location";
+    if (match) {
+        const fileName = match[1].split('/').pop(); // Get the file name
+        const lineNumber = match[2]; // Get the line number
+        fileInfo = `${fileName}, line ${lineNumber}`;
+    }
+
+    // Handle input
+    let formattedInput;
+    if (typeof input === "object") {
+        const seen = new WeakSet(); // To track circular references
+        try {
+            formattedInput = JSON.stringify(input, (key, value) => {
+                if (typeof value === "object" && value !== null) {
+                    if (seen.has(value)) {
+                        return "[Circular]"; // Mark circular references
+                    }
+                    seen.add(value);
+                }
+                return value;
+            }, 2);
+        } catch (error) {
+            formattedInput = "[Unserializable object]";
+        }
+    } else {
+        formattedInput = input; // Use as-is for non-object types
+    }
+
+    // Log the debug message
+    console.log(`${fileInfo} ::${linChar} ${formattedInput}`);
+}
+
+
 const app = express();
 const PORT = 5001;
 
@@ -133,19 +178,24 @@ app.delete("/delete", async (req, res) => {
     }
 });
 app.put("/update", async (req, res) => {
+
     const token = req.cookies.token || req.headers.authorization?.split(' ')[1];
-    console.log('Received token:', token);
     const { lock_for, update_data,  category} = req.body;
 
-    if (!token || !lock_for?.id || !update_data) {
+    if (!token || !lock_for || !update_data) {
+        DEBUG()
         return res.status(401).json({ error: "Unauthorized: Invalid token or request data" });
     }
-
+    const updateData = {
+        lock_for:lock_for, update_data:update_data, category:category
+    }
+    console.log("\n::lock_for\n", lock_for);
     try {
         const response = await axios.post(
             `${PYTHON_SERVER_URL}/api/update/`,
-            { lock_for, update_data, category },
+            updateData,
             { headers: { Authorization: `Bearer ${token}` } }
+
         );
         res.status(response.status).json(response.data);
     } catch (error) {
@@ -199,7 +249,6 @@ try{
 })
 app.get("/search", async (req, res) => {
     const token = req.cookies.token;
-    console.log(`token form get search ${token}`);
     if (!token) {
         return res.redirect("/login");
     }
@@ -219,7 +268,6 @@ app.get("/search", async (req, res) => {
 });
 app.get("/api/auth", async (req, res) => {
     const token = req.cookies.token;
-    console.log(`FORM api/auth ${token}`);
     if (!token) {
         return res.status(401).json({ authorized: false, message: "Not logged in" });
     }
@@ -229,7 +277,6 @@ app.get("/api/auth", async (req, res) => {
             console.error(result[1]);
             return res.status(401).json({ authorized: false, message: "Invalid token" });
         }
-        console.log("\n\n RESULT FORM api/auth \n", result);
         return res.status(200).json(result);
     } catch (error) {
         console.error(error);
@@ -239,7 +286,7 @@ app.get("/api/auth", async (req, res) => {
 
 app.get("/test", (req, res)=>{
     const token = req.cookies.token;
-    console.log(`__token__ ${token}`);
+
 })
 
 // New endpoint to forward requests to Python backend
@@ -248,6 +295,41 @@ app.post("/search/forward", async (req, res) => {
 
     if (!category || !method || !query) {
         return res.status(400).json({ error: "Missing required fields: category, method, or query" });
+    }
+
+    try {
+        // Forward the search request to the Python backend
+        const response = await axios.post(`${PYTHON_SERVER_URL}/api/search/`, {
+            category,
+            method,
+            query,
+        }, {
+            headers: {
+                Authorization: req.headers.authorization,
+            },
+        });
+
+        res.status(response.status).json(response.data);
+    } catch (error) {
+        console.error("Error forwarding search request:", error.response?.data || error.message);
+        res.status(error.response?.status || 500).json(error.response?.data || { error: "Search forward failed" });
+    }
+});
+app.post("/update/user", async (req, res) => {
+    const token = req.cookies.token;
+    if (!token) {
+        return res.status(401).json({ authorized: false, message: "Not logged in" });
+    }
+    const user =  req?.data || {}
+    const password = user?.password || ""
+    const userId  = user?.id || ""
+
+    let msg = "";
+    msg += !user ? "no valid user data provided, ":"";
+    msg += !password ? "null user password " : "";
+    msg += !userId ? "null user id " : "";
+    if (msg) {
+        return res.status(400).json({ error: msg });
     }
 
     try {
