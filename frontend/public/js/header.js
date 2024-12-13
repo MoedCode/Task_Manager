@@ -189,11 +189,22 @@ async function profile() {
     userDelCancel.addEventListener("click", ()=> userModDelete.style.display="none")
     userDelBtn.addEventListener('click', function () {
         userModDelete.style.display = "flex";
+        useless.style.display = "none";
+        userDelPWD.value = "";
+        hiddenElement = document.getElementById("hiddenElement")
+        hiddenElement.addEventListener('mouseover', () => {
+            useless.style.display = 'block';
+        });
+
+        hiddenElement.addEventListener('mouseout', () => {
+            useless.style.display = 'none';
+        });
 
 
 });
 
 userDelConf.addEventListener("click", async function () {
+
     try{
         userData = {
         username : user_obj.username,
@@ -203,16 +214,25 @@ userDelConf.addEventListener("click", async function () {
             headers: { Authorization: `Bearer ${token}` },
             data: { user:userData}
         })
+        if (res.data.status == "Error"){
+            userDel_err.innerHTML = res.data.message
+            setTimeout(() => {
+                userDel_err.innerHTML = ""
+            }, 5000);
+            return
+        }
         window.location.reload()
     }catch(error){
         console.error(error)
+        userDel_err.innerHTML = res.data
     }
 
 });
 useless.addEventListener("click", function  useless() {
+
     // Create a new paragraph element
     const x = document.createElement("p");
-    x.innerHTML = `${userDel_h3.children.length + 1} under progress`; // Add numbering for clarity
+    x.innerHTML = `${userDel_h3.children.length + 1}🐥`; // Add numbering for clarity
 
     // Append the element to the userDel_h3 container
     userDel_h3.append(x);
@@ -220,10 +240,10 @@ useless.addEventListener("click", function  useless() {
     // Remove the element after 3 seconds
     setTimeout(() => {
         y =  userDel_h3.children.length + 1
-        if (y > 20 )
-            window.document.body .innerHTML = `<h1>you are winner stupid as hole click it ${y} times </h1>`
+        if (y > 14 )
+            window.document.body .innerHTML = `<h1>you   get ${y}🐥 before flying away   congratulation  winning  useless game  </h1>`
         x.remove(); // Safely remove the DOM element
-    }, 6000);
+    }, 3000);
 });
 
 }

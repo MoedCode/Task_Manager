@@ -313,10 +313,10 @@ class CsvStorage():
 
         except FileNotFoundError:
             print(f"File {self.file_path} not found.")
-            return []
+            return [False,"File {self.file_path} not found."]
         except Exception as e:
             print(f"An error occurred: {e}")
-            return []
+            return [False, f"An error occurred: {e}"]
     def reload(self):
         self.session =  self.csv_read()
         # print(f"\n\n\n ------------   -------------- \n\n\n")

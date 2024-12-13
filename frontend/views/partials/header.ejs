@@ -57,14 +57,17 @@
             <div id="user-modal-delete" class="modal">
                 <div class="modal-content Delet-user ">
                     <div class="modal-header">
-                        <h3 id="delete-user-h3">Type User Name  Password To Confirm Deletion</h3>
-                        <p><strong  id="delete-user-error" style="color: red;"></strong></p>
+                        <h3 id="delete-user-h3">Type your Password To Confirm Deletion</h3>
                     </div>
-                    <input type="password" id="user-delete-password">
+                    <h3><strong  id="delete-user-error" style="color: red;"></strong></h3>
+
+                    <input type="password" id="user-delete-password"  name="password" autocomplete="off">
                     <div class="modal-footer">
                         <button id="user-delete-conf" class="modal-button">Confirm  Delete</button>
-                        <button id="useless-btn" class="modal-button">🙄🙄🙄</button>
-
+                        <div id="hiddenElement">
+                            ```
+                        <button id="useless-btn" class="modal-button">🐥</button>
+                            </div>
                         <button id="user-delete-cancel" class="modal-button cancel">Cancel</button>
                     </div>
                 </div>

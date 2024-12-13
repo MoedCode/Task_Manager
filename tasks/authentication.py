@@ -67,7 +67,7 @@ class Authentication:
         validPWD = self.check_PWD_256(plain_password=password, hashed_password=query[1]["password"])
         if not query[0] or  not validPWD:
             if not validPWD:
-                return False,  f"Query {query[1]} hashpass {self.hash_256(password)}"
+                return False,  f"Invalid Credential... "
             return  (False, f"incorrect username or password ")
         return True, query[1]
 
@@ -97,7 +97,8 @@ class Authentication:
         username = user["username"]
         password = user["password"]
         user_quey = self.authenticate(**user)
-        if not user_quey[1]:
+        DEBUG(user_quey)
+        if not user_quey[0]:
             return user_quey
         tasks_stor.reload()
         logout_res = self.logout(user)
