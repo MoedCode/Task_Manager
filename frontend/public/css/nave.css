@@ -72,9 +72,7 @@ body {
     box-shadow: red;
     padding: 2vw;
 }
-input {
-    width: 80%;
-}
+
 .Delet-user {
     background: linear-gradient(to bottom, #ff4d4d, #ea65a8);
     color: #333;
