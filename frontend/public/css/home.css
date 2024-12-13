@@ -210,6 +210,7 @@ h1, h2 {
     background: linear-gradient(to bottom, #ff4d4d, #ea65a8);
     color: #333;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+
 }
 .modal-body {
     display: flex;

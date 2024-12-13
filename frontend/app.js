@@ -177,6 +177,34 @@ app.delete("/delete", async (req, res) => {
         res.status(error.response?.status || 500).json(error.response?.data || { error: "Delete failed" });
     }
 });
+app.delete("/delete/user", async (req, res) => {
+    DEBUG(req.cookies.token)
+    DEBUG(req.body)
+    const token = req.cookies.token; // Extract user token from cookie
+    const user = req.body.user;
+    let msg = ""
+    msg += !user ? "messing user data. " :"";
+    msg += !token ? "no token provided. " :""
+    if (msg) {
+        DEBUG(msg)
+
+        return res.status(400).json({ error: msg });
+    }
+
+    try {
+        // Forward the request to the Python backend
+        const response = await axios.post(
+            `${PYTHON_SERVER_URL}/api/delete/user/`,
+            { user: user },
+            { headers: { Authorization: `Bearer ${token}` } }
+        );
+
+        res.status(response.status).json(response.data); // Respond with Python server response
+    } catch (error) {
+        DEBUG(error)
+        res.status(error.response?.status || 500).json(error.response?.data || { error: "Delete failed" });
+    }
+});
 app.put("/update", async (req, res) => {
 
     const token = req.cookies.token || req.headers.authorization?.split(' ')[1];
@@ -197,6 +225,7 @@ app.put("/update", async (req, res) => {
             { headers: { Authorization: `Bearer ${token}` } }
 
         );
+        // if (response.data[0])
         res.status(response.status).json(response.data);
     } catch (error) {
         console.error('Error from Python backend:', error.response?.data || error.message);
@@ -277,7 +306,10 @@ app.get("/api/auth", async (req, res) => {
             console.error(result[1]);
             return res.status(401).json({ authorized: false, message: "Invalid token" });
         }
+        DEBUG(token)
+        // DEBUG(result)
         return res.status(200).json(result);
+
     } catch (error) {
         console.error(error);
         res.status(500).send("Internal Server Error");

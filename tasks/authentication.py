@@ -93,6 +93,29 @@ class Authentication:
                 res_x = tokens_stor.delete("token", token["token"])
                 return False, "5lalas ra7et 3alek"
 
+    def delete_user(self, user:Dict={}) ->List:
+        username = user["username"]
+        password = user["password"]
+        user_quey = self.authenticate(**user)
+        if not user_quey[1]:
+            return user_quey
+        tasks_stor.reload()
+        logout_res = self.logout(user)
+        if not logout_res[0]:
+            return logout_res
+        all_tasks = tasks_stor.csv_read()
+        for task in all_tasks:
+            if task["user_id"] == user_quey[1]["id"]:
+                tasks_stor.session.remove(task)
+        tasks_stor.save()
+        user_del_res = users_stor.delete(key="username", value=username)
+        if not user_del_res[0]:
+            return user_del_res
+        return True, f"user {username} deleted successfully "
+
+
+
+
 
     def delete_token(self, user_token=None):
         if not user_token:
@@ -111,7 +134,7 @@ class Authentication:
         value = user[key]
         query_user = users_stor.filter({key:value}, True)
         if not query_user["id"]:
-            return False, f"Error {key} : {value}"
+            return False, f"Error ____{key} : {value}__"
         user_id = query_user["id"]
         okay, query = tokens_stor.delete("user_id",  user_id)
         if not okay:
@@ -122,7 +145,7 @@ class Authentication:
     def update_user(self, user={},data={}):
         if not user or not data :
             return False , "5od pa3dak we amshe  ala"
-        DEBUG(data)
+        # DEBUG(data)
         username = user["username"] or None
         password = user["password"] or None
         if not username or not password:
@@ -136,17 +159,18 @@ class Authentication:
             return  False, "no valid credential 2"
         idx = query[2]
         clean_data = Users.validate_dict(data=data)
-        DEBUG(clean_data)
+        # DEBUG(clean_data)
         if not clean_data[0]:
-            DEBUG()
+            # DEBUG()
             return clean_data
         if "password" in clean_data[1]:
             clean_data[1]["password"]= self.hash_256(clean_data[1]["password"])
-        DEBUG(f"clean dat {clean_data[1]}")
-        self.logout(user=query[1])
+            x = self.logout({"username":username})
+            DEBUG(x)
         for key, value in clean_data[1].items():
             users_stor.session[idx][key] = value
         users_stor.session[idx]["updated"] = datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f")
+        DEBUG(users_stor.session[idx])
         users_stor.save()
 
         return True, clean_data[1]
@@ -221,8 +245,10 @@ if __name__  == "__main__":
         "email": "new_user@example.com",
         "image": "profile.png",
     }
-    DEBUG(f'{users_stor.write_line({"username":"newuser"}, data_to_validate, True)}')
+    # DEBUG(f'{users_stor.write_line({"username":"newuser"}, data_to_validate, True)}')
     # print(f'{users_stor.filter({"username":"procodexx1"},True )}')
-    ProCoderx0 = {"username":"ProCoderx0", "password":"ProCoderx0"}
+    # ProCoderx0 = {"username":"ProCoderx0", "password":"ProCoderx0"}
     # x = auth.update_user(user=ProCoderx0, data=data_to_validate)
     # print(x)
+    x = {"username":"procoderXY", "password":"procoderXY2"}
+    DEBUG(auth.delete_user(x))

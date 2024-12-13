@@ -349,6 +349,7 @@ class RequestHandler(BaseHTTPRequestHandler):
             if cat.lower() == "users":
                 result = auth.update_user(user=lock_for, data=update_data)
                 if result[0]:
+                    DEBUG(result)
                     self.send_response_data({"status":"success", "message":result[1]}, status=200)
                     return
                 self.send_response_data({"status":"Error", "message":result[1]}, status=200)
@@ -370,6 +371,18 @@ class RequestHandler(BaseHTTPRequestHandler):
             self.send_response_data({"success":"Error", "data":result[1]}, status=200)
             return
 
+        elif path == "/api/delete/user/":
+            print(f"{DEBUG()}")
+            res, token_dict = self.get_token_dict()
+            if not  res:
+                self.send_response_data({"error": f"Not Found {token_dict}"}, status=401)
+            user = data.get("user", "")
+            del_res = auth.delete_user(user)
+            if not del_res[0]:
+                self.send_response_data({"status":"Error", "message":f"{del_res[1]}"})
+                return
+            self.send_response_data({"status":"success", "message":f"{del_res[1]}"})
+            return
 
         elif path == "/api/delete/":
             print(f"{DEBUG()}")

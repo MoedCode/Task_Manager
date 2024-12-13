@@ -61,3 +61,45 @@ body {
     background-color: rgba(0, 0, 0, 0.5);
     z-index: 1049;
 }
+.Delete-btn {
+    border: none;
+    border-radius: 5vw;
+    background: linear-gradient(to bottom, #ff4d4d, #ea65a8);
+    color: #333;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+.Delete-btn:hover{
+    box-shadow: red;
+    padding: 2vw;
+}
+input {
+    width: 80%;
+}
+.Delet-user {
+    background: linear-gradient(to bottom, #ff4d4d, #ea65a8);
+    color: #333;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    width: 50vw !important;
+    border-radius: 20vw !important;
+
+
+
+}
+.Delet-user :hover{
+    animation: name duration timing-function delay iteration-count direction fill-mode;
+}
+.Delet-user button{
+    border: none;
+    border-radius: 10vw;
+    margin: 1vw;
+}
+.Delet-user input{
+    border: none;
+    border-radius: 10vw;
+    align-self: center;
+}
+.Delet-user h3 {
+    align-self: center;
+    margin: 2vw;
+
+}
