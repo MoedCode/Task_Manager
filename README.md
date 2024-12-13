@@ -9,7 +9,8 @@ and
  i intentionally didnt use frame work to know how can i handle  request response parse json data
  serve files   i use  `RequestHandler` class with
     ` _set_headers` Set HTTP headers for the response.
-    `serve_html`  serve html files
+    `serve_html`  serve html files that kust use to serve API interface web page
+    mostly during to development test also   I didn't use postman on purpose.
     `parse_request_data`  Parse JSON request body ,  Helper to send a JSON response
     `do_GET` that handle get requests
     `do_POST` handle post requests
@@ -28,3 +29,10 @@ and
   Authentication class also sue file storage to store session authentication in file auth.py
   after converting token object instance to dictionary
 
+# models
+  contain Base class that has attributes like `created,  updated, id `
+  also methods like
+  `to_dict` convert object to entirely to serializable dictionary
+  `to_save`  covert serializable dictionary to be saved like hashing password
+  `serializer` clean the  attributes that unsecure to be relived  from saved dictionaries
+  Tasks class and `Users, Tasks, Tokens` classes that inherit  from base class
