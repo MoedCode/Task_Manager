@@ -1,5 +1,45 @@
 // simple_tasker/frontend/public/js/search.js
 
+
+function maximize(tasId=""){
+    taskCard = document.getElementById(`${tasId}`);
+    taskCard.classList.add("modal_x")
+}
+document.addEventListener("DOMContentLoaded", function () {
+    // Select all maximize buttons
+    const maximizeButtons = document.querySelectorAll(".maximize-btn");
+
+    maximizeButtons.forEach((button) => {
+        button.addEventListener("click", function () {
+            const cardId = this.getAttribute("data-id");
+            const card = document.getElementById(`card-${cardId}`);
+
+            // Check if card is already maximized
+            if (card.classList.contains("card-popup")) {
+                // Minimize the card
+                card.classList.remove("card-popup", "highlight");
+                const closeButton = card.querySelector(".close-btn");
+                if (closeButton) closeButton.remove();
+            } else {
+                // Maximize the card
+                card.classList.add("card-popup", "highlight");
+
+                // Add a close button to the card
+                const closeButton = document.createElement("button");
+                closeButton.classList.add("close-btn");
+                closeButton.innerHTML = "&times;";
+                card.appendChild(closeButton);
+
+                // Close popup on close button click
+                closeButton.addEventListener("click", function () {
+                    card.classList.remove("card-popup", "highlight");
+                    closeButton.remove(); // Remove the close button
+                });
+            }
+        });
+    });
+});
+
 document.addEventListener('DOMContentLoaded', function() {
     const addTaskBtn = document.getElementById('addTaskBtn');
     const addTaskModal = document.getElementById('addTaskModal');

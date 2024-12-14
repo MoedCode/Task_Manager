@@ -28,9 +28,6 @@ body {
 }
 
 /* Hover effect for cards */
-.card:hover {
-    transform: scale(1.05);
-}
 
 /* Task detail style */
 .task-detail {
@@ -146,20 +143,43 @@ body {
     gap: 20px;
     justify-content: center;
     padding: 20px;
+    max-height: 100vh;
+    width: fit-content;
+    overflow-y: auto !important;
+    overflow-x: auto !important;
+
 }
 
 .card {
     background-color: #fff;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    width: 300px;
+
     padding: 15px;
     margin: 10px;
     transition: transform 0.3s ease;
+    max-width: 30vw;
+    max-height: 60vh;
+    overflow-y: auto !important;
+    overflow-x: auto !important;
+    border: 1px solid #1c0f0f; /* Optional: To visualize the boundaries */
+    scrollbar-width: none; /* For Firefox */
+    -ms-overflow-style: none; /
+}
+.task_todo {
+    overflow-y: auto;
+    overflow-x: auto;
+    max-width: 100%;
+    max-height: 45%;
+    border: 1px solid #ccc; /* Optional: To visualize the boundaries */
+
+    /* Hide scrollbars */
+    scrollbar-width: none; /* For Firefox */
+    -ms-overflow-style: none; /* For Internet Explorer and Edge */
 }
 
-.card:hover {
-    transform: scale(1.05);
+.card  .task_todo::-webkit-scrollbar {
+    display: none; /* For Chrome, Safari, and Opera */
 }
 
 .task-detail {
@@ -175,7 +195,13 @@ h1, h2 {
     text-align: center;
     color: #333;
 }
+.modal_x{
+    position: fixed;
+    align-self: center;
+    width: 150vw;
+    height: 150vh;
 
+}
 /* Modal Styles */
 .modal {
     display: none;
@@ -239,6 +265,8 @@ h1, h2 {
 .search-res-btn{
     display: flex;
     flex-direction: row;
+    position: absolute;
+
 }
 .search-res-btn button{
     width: auto; height: auto;
@@ -256,4 +284,46 @@ h1, h2 {
 }
 .search-res-btn .update-btn{
     background-color: #baf1f8;
+}
+
+
+/*  */
+/* Base styles */
+
+.task-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.card-popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1000;
+    width: 80%;
+    max-width: 600px;
+    height: auto;
+    padding: 20px;
+    background: white;
+    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+    /* Remove animation after first apply */
+    animation: none;
+}
+
+.card-popup.highlight {
+    border: 2px solid #007bff;
+    box-shadow: 0 0 15px rgba(0, 123, 255, 0.6);
+}
+
+.card-popup .close-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: transparent;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
 }

@@ -41,26 +41,39 @@
     </div>
 </div>
 
-
 <div class="task-container">
     <% tasks.forEach(function(task) { %>
-        <div class="card">
+        <div class="card" id="card-<%=task.id%>">
+            <br><br>
             <h3>Task:</h3>
-            <% Object.keys(task).forEach(function(key) { %>
-                <div class="task-detail">
-                    <strong><%= key %>:</strong> <%= task[key] %>
-                </div>
-            <% }); %>
+            <div class="task-detail">
+                <% if (task.task.length > 50) { %>
+                    <h6>Task title</h6>
+                    <p><%= task.task.split('.', 5)[0]; %></p>
+
+                    <h6>To Do</h6>
+                    <p class="task_todo"><%= task.task %></p>
+                <% } else { %>
+                    <h6>Task topic</h6>
+                    <p><%= task.task %></p>
+                <% } %>
+
+                <h6>Task priority</h6>
+                <h1><%= task.priority %></h1>
+
+                <h6>Kickoff Date</h6>
+                <p><%= task.kickoff %></p>
+            </div>
 
             <div class="search-res-btn">
-            <button class="delete-btn" data-id="<%= task.id %>">Delete</button>
-
-            <!-- Update Button -->
-            <button class="update-btn" data-id="<%= task.id %>" data-task="<%= task.task %>" data-kickoff="<%= task.kickoff %>" data-priority="<%= task.priority %>">Update</button>
+                <button class="delete-btn" data-id="<%= task.id %>">Delete</button>
+                <button class="update-btn" data-id="<%= task.id %>" data-task="<%= task.task %>" data-kickoff="<%= task.kickoff %>" data-priority="<%= task.priority %>">Update</button>
+                <button class="maximize-btn" data-id="<%= task.id %>">Maximize</button>
             </div>
         </div>
     <% }); %>
 </div>
+
 
 <!-- Confirmation Modal for Deletion -->
 <div id="deleteModal" class="modal">

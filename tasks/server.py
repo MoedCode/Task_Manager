@@ -82,6 +82,7 @@ class RequestHandler(BaseHTTPRequestHandler):
         user_tasks = []
         for task in all_tasks:
             if task["user_id"] == user_id:
+                # new_task = {"task":task["task"], "priority":task["priority"], "kickoff":task["kickoff"],"created":task["created"]}
                 user_tasks.append(task)
         return True, user_tasks
 
