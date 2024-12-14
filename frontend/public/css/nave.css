@@ -78,7 +78,7 @@ body {
     color: #333;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
     width: 50vw !important;
-    border-radius: 20vw !important;
+    border-radius: 2vw !important;
 
 
 
@@ -101,6 +101,4 @@ body {
     margin: 2vw;
 
 }
-#modal-footer{
-    flex-direction: column;
-}
+.
