@@ -74,12 +74,11 @@ body {
 }
 
 .Delet-user {
-    background: linear-gradient(to bottom, #ff4d4d, #ea65a8);
+    background: linear-gradient(to bottom, #ff4d4d, transparent);
     color: #333;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
     width: 50vw !important;
     border-radius: 2vw !important;
-
 
 
 }
@@ -95,6 +94,8 @@ body {
     border: none;
     border-radius: 10vw;
     align-self: center;
+    margin-left: 35%;
+
 }
 .Delet-user h3 {
     align-self: center;

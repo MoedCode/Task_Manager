@@ -6,7 +6,17 @@ body {
     margin: 0;
     padding: 0;
 }
+.task-div textarea{
+    border: solid 0.5px black;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 
+}
+.card h4 {
+    background-color: #d8e9fc;
+    text-align: center;
+    color: #007BFF;
+}
 /* Container for all the task cards */
 .task-container {
     display: flex;
@@ -39,7 +49,7 @@ body {
     color: #333;
 }
 
-h3 {
+.card h3 {
     font-size: 24px;
     margin-bottom: 10px;
     text-align: center;
@@ -113,6 +123,7 @@ h3 {
     top: 100px; /* Adjusted to make it slightly lower */
     padding: 15px 30px;
     background-color: #28a745; /* Green */
+
     color: white;
     border: none;
     border-radius: 8px;
@@ -163,8 +174,24 @@ body {
     overflow-y: auto !important;
     overflow-x: auto !important;
     border: 1px solid #1c0f0f; /* Optional: To visualize the boundaries */
+
+}
+.card textarea{
+    width: 100%;
+    height: 70%;
+    border: none;
+}
+.overflow-x {
+
+
+    overflow-y: auto !important;
+    overflow-x: auto !important;
     scrollbar-width: none; /* For Firefox */
     -ms-overflow-style: none; /
+
+}
+.overflow-x ::-webkit-scrollbar {
+    display: none; /* For Chrome, Safari, and Opera */
 }
 .task_todo {
     overflow-y: auto;
@@ -178,7 +205,7 @@ body {
     -ms-overflow-style: none; /* For Internet Explorer and Edge */
 }
 
-.card  .task_todo::-webkit-scrollbar {
+.task_todo::-webkit-scrollbar {
     display: none; /* For Chrome, Safari, and Opera */
 }
 
@@ -210,6 +237,7 @@ h1, h2 {
     left: 0;
     width: 100%;
     height: 100%;
+    min-height: fit-content;
     background-color: rgba(0, 0, 0, 0.5);
     justify-content: center;
     align-items: center;
@@ -225,11 +253,50 @@ h1, h2 {
 .modal-header {
     font-size: 18px;
     margin-bottom: 10px;
+    color: #e5dcdc !important;
+    font-size: large !important;
+    font-weight: bold !important;
+
 }
+.add-task{
+    background: linear-gradient(to bottom, transparent, #72e365);
+    color: #e5dcdc !important;
+    font-size: large !important;
+    font-weight: bold !important;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    width:50vw;
+    height: 60vh;
+}
+
 .update{
-    background: linear-gradient(to bottom, #89bbeb, #c2f4bc);
+    background: linear-gradient(to bottom, transparent, hsl(224, 70%, 62%));
     color: #333;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    width:50vw;
+    height: fit-content;
+    color: white;
+    font-weight: bolder;
+}
+#user-modal-view{
+    display: flex;
+    flex-direction: column;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 2rem;
+    height: 70vh !important;
+}
+#user-modal-view div{
+    display: flex;
+    flex-direction: row;
+}
+#user-modal-view p{
+    border-bottom: #007BFF 1px solid;
+    border-radius: 200px;
+    scrollbar-3dlight-color: #007BFF;
+
+}
+.update textarea {
+    width: 45vw !important;
+    height: 15vh !important;
 
 }
 .Delete{
@@ -302,18 +369,19 @@ h1, h2 {
     left: 50%;
     transform: translate(-50%, -50%);
     z-index: 1000;
-    width: 80%;
-    max-width: 600px;
-    height: auto;
+    width: 90%; /* Use a reasonable percentage or fixed pixel value */
+    max-width: 800px; /* Limit the maximum width */
+    height: 80%; /* Adjust height proportionally */
+    max-height: 600px; /* Limit maximum height */
     padding: 20px;
     background: white;
     box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
     border-radius: 10px;
-    /* Remove animation after first apply */
-    animation: none;
+    overflow: auto; /* Handle content overflow */
 }
 
-.card-popup.highlight {
+
+.card-popup.highlight p {
     border: 2px solid #007bff;
     box-shadow: 0 0 15px rgba(0, 123, 255, 0.6);
 }
@@ -326,4 +394,19 @@ h1, h2 {
     border: none;
     font-size: 20px;
     cursor: pointer;
+}
+.card-popup textarea {
+    width: 100% !important;
+    height: 70% !important;
+    border: none !important;
+}
+#addTaskModal{
+    width: 100vw;
+    height: 120vh;
+
+    overflow-y: auto !important;
+    overflow-x: auto !important;
+    scrollbar-width: none; /* For Firefox */
+    -ms-overflow-style: none; /
+
 }

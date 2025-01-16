@@ -12,7 +12,9 @@
 
 </head>
 <body>
+<p>
 
+</p>
 <h1>Welcome to Your Tasker</h1>
 <h2>Your Tasks:</h2>
 <!-- Add Task Button -->
@@ -20,17 +22,18 @@
 <button  id="addTaskBtn" class="add-task-btn">Add Task</button>
 <!-- Add Task Modal -->
 <div id="addTaskModal" class="modal">
-    <div class="modal-content">
+    <div class="add-task">
         <div class="modal-header">
             <h3>Add New Task</h3>
         </div>
         <div class="modal-body ">
             <label for="addTask"  >Task:</label>
-            <input type="text" id="addTask" name="task" size="150">
-
+            <!-- <input type="text" id="addTask" name="task" size="150"> -->
+            <textarea class="overflow-x" type="text" id="addTask" name="task"></textarea>
+                <hr>
             <label for="addKickoff">Kickoff (DateTime):</label>
             <input type="datetime-local" id="addKickoff" name="kickoff">
-
+                <hr>
             <label for="addPriority">Priority:</label>
             <input type="number" id="addPriority" name="priority" min="1" max="5">
         </div>
@@ -43,37 +46,42 @@
 
 <div class="task-container">
     <% tasks.forEach(function(task) { %>
-        <div class="card" id="card-<%=task.id%>">
+        <div class="card overflow-x" id="card-<%=task.id%>">
             <br><br>
             <h3>Task:</h3>
             <div class="task-detail">
-                <% if (task.task.length > 50) { %>
-                    <h6>Task title</h6>
-                    <p><%= task.task.split('.', 5)[0]; %></p>
+                <div class="task-div">
+                <% if (task.task.length > 25) { %>
+                    <h4>Task title</h4>
+                    <p><%= task.task.substring(0, 25); %></p>
 
-                    <h6>To Do</h6>
-                    <p class="task_todo"><%= task.task %></p>
+                    <h4>To Do</h4>
+                    <textarea readonly class="overflow-x" name="" id=""><%= task.task %></textarea>
+
+                    <!-- <p class="task_todo"><%= task.task %></p> -->
                 <% } else { %>
-                    <h6>Task topic</h6>
+                    <div class="text">
+                    <h4>Task </h4>
                     <p><%= task.task %></p>
+                    </div>
                 <% } %>
+                </div>
+                <h4>Task priority <%= task.priority %></h4>
 
-                <h6>Task priority</h6>
-                <h1><%= task.priority %></h1>
-
-                <h6>Kickoff Date</h6>
-                <p><%= task.kickoff %></p>
+                <h4>Kickoff Date</h4>
+                <h3><%= task.kickoff %></h3>
             </div>
 
             <div class="search-res-btn">
                 <button class="delete-btn" data-id="<%= task.id %>">Delete</button>
                 <button class="update-btn" data-id="<%= task.id %>" data-task="<%= task.task %>" data-kickoff="<%= task.kickoff %>" data-priority="<%= task.priority %>">Update</button>
-                <button class="maximize-btn" data-id="<%= task.id %>">Maximize</button>
+                <button class="maximize-btn" data-id="<%= task.id %>">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="2.5vw" height="2.5vw" viewBox="0 0 24 24"><path fill="#0284c7" d="M6.4 19H8q.425 0 .713.288T9 20t-.288.713T8 21H4q-.425 0-.712-.288T3 20v-4q0-.425.288-.712T4 15t.713.288T5 16v1.6l2.4-2.4q.275-.275.7-.275t.7.275t.275.7t-.275.7zm11.2 0l-2.4-2.4q-.275-.275-.275-.7t.275-.7t.7-.275t.7.275l2.4 2.4V16q0-.425.288-.712T20 15t.713.288T21 16v4q0 .425-.288.713T20 21h-4q-.425 0-.712-.288T15 20t.288-.712T16 19zM5 6.4V8q0 .425-.288.713T4 9t-.712-.288T3 8V4q0-.425.288-.712T4 3h4q.425 0 .713.288T9 4t-.288.713T8 5H6.4l2.4 2.4q.275.275.275.7t-.275.7t-.7.275t-.7-.275zm14 0l-2.4 2.4q-.275.275-.7.275t-.7-.275t-.275-.7t.275-.7L17.6 5H16q-.425 0-.712-.287T15 4t.288-.712T16 3h4q.425 0 .713.288T21 4v4q0 .425-.288.713T20 9t-.712-.288T19 8z"/></svg>
+                </button>
             </div>
         </div>
     <% }); %>
 </div>
-
 
 <!-- Confirmation Modal for Deletion -->
 <div id="deleteModal" class="modal">
@@ -96,8 +104,8 @@
         </div>
         <div class="modal-body">
             <label for="task">Task:</label>
-            <input type="text" id="task" name="task">
-
+            <!-- <input type="text" id="task" name="task"> -->
+            <textarea class="overflow-x" type="text" id="task" name="task"></textarea>
             <label for="kickoff">Kickoff (DateTime):</label>
             <input type="datetime-local" id="kickoff" name="kickoff">
 

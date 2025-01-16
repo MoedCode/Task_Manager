@@ -193,3 +193,30 @@ found 21 vulnerabilities (7 low, 5 moderate, 9 high)
 
 mohamed@DESKTOP-S296B4S /mnt/c/Users/Active/Desktop/Coding/Gradutaion/simple_tasker/frontend
 ```
+```shit
+
+Specialization
+Modern JavaScript advanced in backend nodeJs typescript
+Storage
+Advanced MySQL
+NoSQL
+Redis
+Back-end
+Pagination
+Caching
+i18n
+Queuing system in JS
+User Data
+Personal data
+Authentication - Basic & Session
+User authentication
+Portfolio project
+Soft-skills & Interview preparation
+Technical Writing
+Collaboration
+The Framework
+Whiteboarding
+Time Management
+Interview algorithm pract
+
+```

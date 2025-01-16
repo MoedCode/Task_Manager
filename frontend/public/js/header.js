@@ -112,6 +112,7 @@ async function profile() {
             userModUpdate.style.display = 'flex';
             userModView.style.display = 'none';
             userModal_h3.innerHTML = "Update Your Data"
+
         });
 
         document.getElementById('saveUpdate-user').addEventListener('click', async  function () {
